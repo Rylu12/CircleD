@@ -25,8 +25,8 @@ def autoDetect(up_img):
 
     accum_ratio = 1
     min_dist = 20
-    p1 = 40
-    p2 = 40
+    p1 = 30
+    p2 = 30
     minR = 1
     maxR = 50
 

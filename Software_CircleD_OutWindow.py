@@ -5,7 +5,6 @@ from tkinter import filedialog
 import AutoDetectCircle_OutWindow as adc
 import cv2
 import matplotlib.pyplot as plt
-import os
  
 root = tk.Tk()
 root.title("Spherical Detection Program")
