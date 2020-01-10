@@ -5,10 +5,13 @@ import pandas as pd
 import openpyxl
 
 #Get pixel/distance (using ImageJ software) to output actual diameters of circles
-global result, img
+global result, img, table_data
+
+def clear_plt():
+    plt.clf()
 
 def autoDetect(up_img):
-    global result, img
+    global result, img, table_data
     distance = 1
     pixel = 1.012
     pixel_distance = pixel/distance
@@ -51,8 +54,9 @@ def autoDetect(up_img):
             cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
             
         
-
-        cv2.imwrite(up_img.replace('.jpg', '_detected.jpg'),img)
+        new_name = up_img[:-4] + '_detected' + up_img[-4:]
+        print(new_name+'\n')
+        cv2.imwrite(new_name,img)
         print(detected_circles)
         print()
         rad_list=[]
@@ -65,7 +69,7 @@ def autoDetect(up_img):
         print(type(round(diam,1)))
         print(rad_list.sort())
         print(rad_list)
-        print()
+
         output_list = []
         bottom_10percentile = int(len(rad_list)*0.1)
         top_90percentile = int(len(rad_list)*0.9)
@@ -82,8 +86,8 @@ def autoDetect(up_img):
         (n, bins, patch) = plt.hist([rad_list], bins=np.arange(0,101,10), rwidth=0.9)
         plt.xticks(np.arange(0,101,10))
       #  plt.gca().grid(which='major', axis='y')
-        plt.savefig(up_img.replace('.jpg', '_histogram.png'), dpi = 500)
-        
+        plt.savefig((up_img[:-4] + '_histogram.png'), dpi = 500)
+        plt.clf()
         
 
         print('# of count in each bin = \n', n)
@@ -94,8 +98,6 @@ def autoDetect(up_img):
         rad_list.append(minR)
         rad_list.append(maxR)
 
-        pd.DataFrame(rad_list).to_excel('emulsions_D50_list_1.xlsx',header=False, index=False)
-
-
-def clear_plt():
-    plt.clf()
+       # pd.DataFrame(rad_list).to_excel('emulsions_D50_list_1.xlsx',header=False, index=False)
+        return result
+        

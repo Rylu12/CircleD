@@ -105,12 +105,8 @@ param_p2.grid(row=1, column = 5, padx = 1, pady = 1)
 label_p2 = tk.Label(frame_HoughCircle, text=' Param2:')
 label_p2.grid(row=1,column=4, padx = 1, pady = 1)
 
-
-
-
 frame_SW = tk.LabelFrame(root, width = 70)
 frame_SW.grid(row=8, column = 0, rowspan = 5, columnspan = 3, padx = 5, pady = 5)
-
 
 smaller_histo_img = ImageTk.PhotoImage(Image.open(r'C:\Users\ry129\Dropbox\1 - JHU M.S. Comp Sci courses\Projects_Python\black350.png'))
 new_img_histo = tk.Label(frame_SW,image = smaller_histo_img)
