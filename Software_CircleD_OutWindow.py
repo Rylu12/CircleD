@@ -11,7 +11,7 @@ import numpy as np
 root = tk.Tk()
 root.title("Spherical Detection Program")
 # oot.iconbitmap()
-root.geometry('1210x940')
+root.geometry('1210x780')
 # root.resizable(0, 0)
 # root.pack_propagate(0)
  
@@ -25,16 +25,16 @@ output = 'Output results will display below...\n---------------------------\n'
 start_state = False
 
 frame_logo = tk.LabelFrame(root, width=80)
-frame_logo.grid(row=0, column=0, rowspan = 2, columnspan=7, padx=10, pady=5)
+frame_logo.grid(row=0, column=0, rowspan = 10, columnspan=7, padx=10, pady=5)
  
 logo_img = ImageTk.PhotoImage(Image.open('circled1.png'))
 logo_show = tk.Label(frame_logo, image=logo_img).pack()
  
 frame_intro = tk.LabelFrame(root, width=80)
-frame_intro.grid(row=2, column=0, rowspan=2, columnspan=7, padx=10, pady=5)
+frame_intro.grid(row=10, column=0, rowspan=20, columnspan=7, padx=10, pady=5)
  
-intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=70, height=12, undo=False)
-intro_text['font'] = ('consolas', '11')
+intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=70, height=11, undo=False)
+intro_text['font'] = ('consolas', '10')
 intro_text.insert(tk.INSERT,
                   "Welcome to the Spherical Detection program!\n\nThis software program uses the 'Circle Hough Transform' (CHT) feature extraction technique to detect circles in images. "
                   "Circle candidates are produced by 'voting' in the Hough parameter space and selecting the local maxima in the accumulator matrix. "
@@ -46,34 +46,34 @@ intro_text.insert(tk.INSERT,
 intro_text.pack(expand=True, fill='both')
  
 frame_output = tk.LabelFrame(root, bg='BLACK', width=45)
-frame_output.grid(row=0, column=8, rowspan=12, columnspan=3, padx=10, pady=5, sticky='n')
+frame_output.grid(row=0, column=8, rowspan=65, columnspan=3, padx=10, pady=5, sticky='n')
  
-output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=35, height=50, undo=False)
+output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=35, height=30, undo=False)
 output_text['font'] = ('consolas', '11')
 output_text.insert(tk.INSERT, str(output))
 output_text.pack(expand=True, anchor='n')
  
 frame_rdbutton = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_rdbutton.grid(row=4, column=0, rowspan=2, columnspan=6, padx=10, pady=5, sticky='w')
+frame_rdbutton.grid(row=30, column=0, rowspan=10, columnspan=5, padx=10, pady=5, sticky='w')
 frame_start = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_start.grid(row=4, column=6, rowspan=2, columnspan=1, padx=0, pady=5, sticky='w')
+frame_start.grid(row=30, column=5, rowspan=10, columnspan=1, padx=0, pady=5)
 frame_upload = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_upload.grid(row=6, rowspan=2, column=6, columnspan=1, padx=0, pady=5,sticky='w')
+frame_upload.grid(row=40, rowspan=10, column=5, columnspan=1, padx=0, pady=5)
  
 frame_preview = tk.LabelFrame(root)
-frame_preview.grid(row=8, column=4, rowspan=3, columnspan=3, padx=10, pady=5, sticky = 'n')
+frame_preview.grid(row=50, column=4, rowspan=40, columnspan=3, padx=10, pady=5, sticky = 'nw')
 
-frame_binary = tk.LabelFrame(root)
-frame_binary.grid(row=11, column=4, columnspan=3, padx=10, pady=5)
+frame_binary = tk.LabelFrame(root, text = "Binary Filter Mode")
+frame_binary.grid(row=70, column=8, rowspan = 15, columnspan=3, padx=10, pady=5, sticky = 'nw')
 
-frame_histo_show = tk.LabelFrame(root, width = 70)
-frame_histo_show.grid(row=9, column = 0, rowspan = 2, columnspan = 4, padx=10, pady=5)
+frame_histo_show = tk.LabelFrame(root)
+frame_histo_show.grid(row=60, column = 0, rowspan = 30, columnspan = 4, padx=10, pady=5, sticky = 'nw')
 
 frame_table = tk.LabelFrame(root)
-frame_table.grid(row = 0, column = 11, rowspan = 11, padx=10, pady=5, sticky = 'n')
+frame_table.grid(row = 0, column = 11, rowspan = 65, padx=10, pady=5, sticky = 'n')
 
-table_label = tk.Label(root, text ='To Export Table:\nRight-Click\n|\nV\nFile\n|\nV\nExport CSV')
-table_label.grid(row = 10, column = 11, sticky = 's')
+table_label = tk.Label(root, text ='To Export Table:\n------\nRight-Click\n|\nV\nFile\n|\nV\nExport CSV')
+table_label.grid(row = 65, rowspan = 15, column = 11, sticky = 'n')
 
 smaller_histo_img = ImageTk.PhotoImage(Image.open('black320x240.png'))
 new_img_histo = tk.Label(frame_histo_show,image = smaller_histo_img)
@@ -81,7 +81,7 @@ new_img_histo.pack()
 
  
 frame_HoughCircle = tk.LabelFrame(root, text='Hough Circle Parameters', width=70, padx=10, pady=5)
-frame_HoughCircle.grid(row=6, column=0, rowspan = 2, columnspan=6, padx=10, pady=5, sticky='w')
+frame_HoughCircle.grid(row=40, column=0, rowspan = 10, columnspan=5, padx=10, pady=5, sticky='w')
  
 param_minDist = tk.Entry(frame_HoughCircle, width=5)
 param_minDist.insert(0, str(adc.min_dist))
@@ -120,8 +120,8 @@ label_p2 = tk.Label(frame_HoughCircle, text=' Param2:')
 label_p2.grid(row=1, column=4, padx=1, pady=1)
 
 
-frame_scalebar = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_scalebar.grid(row=8, column=0, columnspan=4, padx=10, pady=5, sticky='w')
+frame_scalebar = tk.LabelFrame(root, text = "Calibrates Pixel/Distance Ratio",width=70, padx=10, pady=5)
+frame_scalebar.grid(row=64, column=8,  rowspan = 7, columnspan=3, padx=10, pady=5, sticky='w')
 
 scalebar = tk.Entry(frame_scalebar, width=10)
 scalebar.insert(0, str(adc.scalebar))
@@ -131,7 +131,7 @@ label_scalebar.grid(row=2, column=0, columnspan = 2, padx=1, pady=1)
 
  
 frame_histo_param = tk.LabelFrame(root, text='Histogram Parameters', width=70, padx=10, pady=5)
-frame_histo_param.grid(row=11, column=0, columnspan=4, padx=10, pady=5, sticky = 'n')
+frame_histo_param.grid(row=50, column=0, rowspan = 5, columnspan=4, padx=10, pady=5, sticky = 'w')
  
 interval_bins = tk.Entry(frame_histo_param, width=5)
 interval_bins.insert(0, str(adc.intervals))
@@ -161,7 +161,7 @@ placeholder_img = tk.Label(frame_preview, image=temp_img).pack()
 
 table = tkt.TableCanvas(frame_table, data = table_Data,
             cellwidth=30, cellbackgr='white',
-            thefont=('Arial',11), width = 120, height = 650,
+            thefont=('Arial',11), width = 120, height = 520,
             rowselectedcolor='#f8eba2')
 table.show()
  
@@ -258,18 +258,18 @@ def start_state():
     table_Data = adc.tableData()
     table = tkt.TableCanvas(frame_table, data = table_Data,
             cellwidth=30, cellbackgr='white',
-            thefont=('Arial',11), width = 120, height = 650,
+            thefont=('Arial',11), width = 120, height = 520,
             rowselectedcolor='#f8eba2')
 
     table.show()
    
     max_wh = max(img_width, img_height)
-    if max_wh > 1100:
-        factor = max_wh / 1000
-    elif max_wh > 500 and max_wh < 1000:
+    if max_wh > 800:
+        factor = max_wh / 800
+    elif max_wh > 600 and max_wh < 800:
         factor = max_wh
     else:
-        factor = max_wh / 700
+        factor = max_wh/800
     
     cv2_img = adc.img
     cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
@@ -322,7 +322,7 @@ start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
 credit = tk.Label(root, text='R.Lu (v1.0.0), 2020', font='consolas 10 bold')
-credit.grid(row=12, column=11, sticky='se')
+credit.grid(row=89, column=11, sticky='se')
 
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):
