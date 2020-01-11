@@ -5,7 +5,7 @@ import pandas as pd
 import openpyxl
 
 #Get pixel/distance (using ImageJ software) to output actual diameters of circles
-global result, img, table_data, rad_list, up_img, pixel_distance, detected_circles
+global result, img, table_data, up_img, pixel_distance, detected_circles
 
 dp = 1
 accum_ratio = 1
@@ -18,6 +18,7 @@ scalebar = 1
 min_range = 0
 max_range = 100
 intervals = 10
+
 
 def clear_plt():
     plt.clf()
@@ -58,7 +59,7 @@ def autoDetectBin(up_img, threshold,accum_ratio, min_dist, p1, p2, minR, maxR):
 def processCircles(up_img, pixel_distance):
     global detected_circles, rad_list, result, img
     # Draw circles that are detected.
-
+    rad_list=[]
     img = cv2.imread(up_img, cv2.IMREAD_COLOR)
 
     if detected_circles is None:
@@ -80,20 +81,14 @@ def processCircles(up_img, pixel_distance):
             
         
         new_name = up_img[:-4] + '_detected' + up_img[-4:]
-        print(new_name+'\n')
         cv2.imwrite(new_name,img)
-        print(detected_circles)
-        print()
-        rad_list=[]
-        
+
         #Loop to convert radius (pixel) values to diameter
         for x in range(detected_circles.shape[1]):
             diam = detected_circles[0,x,2]*2/pixel_distance    
             rad_list.append(round(diam,1))
 
-        print(type(round(diam,1)))
-        print(rad_list.sort())
-        print(rad_list)
+        rad_list.sort()
 
         output_list = []
         bottom_10percentile = int(len(rad_list)*0.1)
@@ -106,7 +101,24 @@ def processCircles(up_img, pixel_distance):
 
     return result
 
-def HistoPlot(up_img, min_range, max_range, intervals):
+def tableData():
+    global rad_list, row_list, dataForTable, col_list
+    dataForTable = {}
+    col_list = []
+    row_list = []
+    Diam_um = 'Diameter(um)'
+    for items in range(len(rad_list)):
+        col_list.append(dict(Diam_um = rad_list[items]))
+
+    for rows in range(len(rad_list)):
+        row_list.append('rec'+ str(rows+1))
+    
+    dataForTable = dict(zip(row_list,col_list))
+
+    return dataForTable
+
+
+def histoPlot(up_img, min_range, max_range, intervals):
     global rad_list
     #Plot histogram
     plt.xlabel('Diameter (um)')
@@ -121,11 +133,6 @@ def HistoPlot(up_img, min_range, max_range, intervals):
 
     print('# of count in each bin = \n', n)
     print('Bins range = \n', np.ndarray.round(bins))
-
-    rad_list.append(p1)
-    rad_list.append(p2)
-    rad_list.append(minR)
-    rad_list.append(maxR)
 
    # pd.DataFrame(rad_list).to_excel('emulsions_D50_list_1.xlsx',header=False, index=False)
     

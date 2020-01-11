@@ -11,27 +11,30 @@ import numpy as np
 root = tk.Tk()
 root.title("Spherical Detection Program")
 # oot.iconbitmap()
-root.geometry('1200x1000')
+root.geometry('1210x940')
 # root.resizable(0, 0)
 # root.pack_propagate(0)
  
 global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, frame_histo_show, sw_img, cv2_img, filename
-global accum_ratio, min_dist, p1, p2, minR, maxR, binImg
- 
-output = 'Output results will display below...\n----------------------------------------\n'
+global accum_ratio, min_dist, p1, p2, minR, maxR, binImg, table_Data, table
+
+table_Data = {'rec1': {'Column': 'Diameter'}, 'rec2':{'Column':'values'}, 'rec3': {'Column': 'will go'}, 
+                'rec4':{'Column': 'here'}, 'rec5':{'Column':' '}, 'rec6': {'Column': ' '}}
+
+output = 'Output results will display below...\n---------------------------\n'
 start_state = False
 
-frame_logo = tk.LabelFrame(root, width=70)
-frame_logo.grid(row=0, column=0, columnspan=7, padx=10, pady=5)
+frame_logo = tk.LabelFrame(root, width=80)
+frame_logo.grid(row=0, column=0, rowspan = 2, columnspan=7, padx=10, pady=5)
  
 logo_img = ImageTk.PhotoImage(Image.open('circled1.png'))
 logo_show = tk.Label(frame_logo, image=logo_img).pack()
  
 frame_intro = tk.LabelFrame(root, width=80)
-frame_intro.grid(row=2, column=0, rowspan=2, columnspan=8, padx=10, pady=5)
+frame_intro.grid(row=2, column=0, rowspan=2, columnspan=7, padx=10, pady=5)
  
-intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=70, height=14, undo=False)
-intro_text['font'] = ('consolas', '10')
+intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=70, height=12, undo=False)
+intro_text['font'] = ('consolas', '11')
 intro_text.insert(tk.INSERT,
                   "Welcome to the Spherical Detection program!\n\nThis software program uses the 'Circle Hough Transform' (CHT) feature extraction technique to detect circles in images. "
                   "Circle candidates are produced by 'voting' in the Hough parameter space and selecting the local maxima in the accumulator matrix. "
@@ -42,48 +45,43 @@ intro_text.insert(tk.INSERT,
  
 intro_text.pack(expand=True, fill='both')
  
-frame_output = tk.LabelFrame(root, bg='BLACK', width=85)
-frame_output.grid(row=0, column=8, rowspan=8, columnspan=4, padx=10, pady=5, sticky='n')
+frame_output = tk.LabelFrame(root, bg='BLACK', width=45)
+frame_output.grid(row=0, column=8, rowspan=12, columnspan=3, padx=10, pady=5, sticky='n')
  
-output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=55, height=33, undo=False)
-output_text['font'] = ('consolas', '10')
+output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=35, height=50, undo=False)
+output_text['font'] = ('consolas', '11')
 output_text.insert(tk.INSERT, str(output))
 output_text.pack(expand=True, anchor='n')
  
 frame_rdbutton = tk.LabelFrame(root, width=70, padx=10, pady=5)
 frame_rdbutton.grid(row=4, column=0, rowspan=2, columnspan=6, padx=10, pady=5, sticky='w')
 frame_start = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_start.grid(row=4, column=6, rowspan=2, columnspan=1, padx=10, pady=5, sticky='w')
+frame_start.grid(row=4, column=6, rowspan=2, columnspan=1, padx=0, pady=5, sticky='w')
 frame_upload = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_upload.grid(row=6, rowspan=2, column=6, columnspan=1, sticky='w')
+frame_upload.grid(row=6, rowspan=2, column=6, columnspan=1, padx=0, pady=5,sticky='w')
  
 frame_preview = tk.LabelFrame(root)
-frame_preview.grid(row=8, column=4, rowspan=2, columnspan=3, padx=10, pady=5)
+frame_preview.grid(row=8, column=4, rowspan=3, columnspan=3, padx=10, pady=5, sticky = 'n')
+
+frame_binary = tk.LabelFrame(root)
+frame_binary.grid(row=11, column=4, columnspan=3, padx=10, pady=5)
 
 frame_histo_show = tk.LabelFrame(root, width = 70)
-frame_histo_show.grid(row=8, column = 0, rowspan = 3, columnspan = 4, padx=10, pady=5)
+frame_histo_show.grid(row=9, column = 0, rowspan = 2, columnspan = 4, padx=10, pady=5)
 
 frame_table = tk.LabelFrame(root)
-frame_table.grid(row = 9, column = 10, rowspan = 2, columnspan = 3, padx=10, pady=5)
+frame_table.grid(row = 0, column = 11, rowspan = 11, padx=10, pady=5, sticky = 'n')
 
-table_data = {'rec1': {'col1': 99.88, 'col2': 108.79},
-'rec2': {'col1': 99.88, 'col2': 108.79}}
-
-table = tkt.TableCanvas(frame_table, data = table_data,
-            cellwidth=30, cellbackgr='white',
-            thefont=('Arial',11), rows=15, cols=3, width = 200,
-            rowselectedcolor='#f8eba2')
-table.show()
-
+table_label = tk.Label(root, text ='To Export Table:\nRight-Click\n|\nV\nFile\n|\nV\nExport CSV')
+table_label.grid(row = 10, column = 11, sticky = 's')
 
 smaller_histo_img = ImageTk.PhotoImage(Image.open('black320x240.png'))
 new_img_histo = tk.Label(frame_histo_show,image = smaller_histo_img)
 new_img_histo.pack()
 
  
- 
 frame_HoughCircle = tk.LabelFrame(root, text='Hough Circle Parameters', width=70, padx=10, pady=5)
-frame_HoughCircle.grid(row=6, column=0, columnspan=6, padx=10, pady=5, sticky='w')
+frame_HoughCircle.grid(row=6, column=0, rowspan = 2, columnspan=6, padx=10, pady=5, sticky='w')
  
 param_minDist = tk.Entry(frame_HoughCircle, width=5)
 param_minDist.insert(0, str(adc.min_dist))
@@ -123,7 +121,7 @@ label_p2.grid(row=1, column=4, padx=1, pady=1)
 
 
 frame_scalebar = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_scalebar.grid(row=7, column=0, columnspan=4, padx=10, pady=5, sticky='w')
+frame_scalebar.grid(row=8, column=0, columnspan=4, padx=10, pady=5, sticky='w')
 
 scalebar = tk.Entry(frame_scalebar, width=10)
 scalebar.insert(0, str(adc.scalebar))
@@ -133,7 +131,7 @@ label_scalebar.grid(row=2, column=0, columnspan = 2, padx=1, pady=1)
 
  
 frame_histo_param = tk.LabelFrame(root, text='Histogram Parameters', width=70, padx=10, pady=5)
-frame_histo_param.grid(row=11, column=0, columnspan=4, padx=10, pady=5)
+frame_histo_param.grid(row=11, column=0, columnspan=4, padx=10, pady=5, sticky = 'n')
  
 interval_bins = tk.Entry(frame_histo_param, width=5)
 interval_bins.insert(0, str(adc.intervals))
@@ -159,7 +157,16 @@ black_img = Image.open('black300.png')
 temp_img = ImageTk.PhotoImage(black_img)
 placeholder_img = tk.Label(frame_preview, image=temp_img).pack()
  
+
+
+table = tkt.TableCanvas(frame_table, data = table_Data,
+            cellwidth=30, cellbackgr='white',
+            thefont=('Arial',11), width = 120, height = 650,
+            rowselectedcolor='#f8eba2')
+table.show()
  
+
+
 def open_file():
     global temp_jpg, window_img, placeholder_img, img_conver, show_img, img_width, img_height, filename, adj_height
 
@@ -221,8 +228,9 @@ def turn_binary():
         return 'OFF'
 
 def start_state():
-    global img_conver, filename, temp_img, detected_img, output, smaller_histo_img, new_img_histo, cv2_img, img_width, img_height, bin_img
-    
+    global img_conver, filename, temp_img, detected_img, output, smaller_histo_img
+    global new_img_histo, cv2_img, img_width, img_height, bin_img, table_Data, table
+
     if turn_binary() == 'OFF':
         adc.autoDetect(filename, int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
             int(param_p2.get()), int(param_minR.get()), int(param_maxR.get()))
@@ -234,9 +242,9 @@ def start_state():
             int(param_p2.get()), int(param_minR.get()), int(param_maxR.get()))
     
     output = adc.processCircles(filename, int(scalebar.get()))
-    output_text.insert(tk.INSERT, str(output) + '\n\n')
-    
-    adc.HistoPlot(filename, int(minRange.get()), (int(maxRange.get())+1), int(interval_bins.get()))
+    output_text.insert(tk.INSERT, str(output) + '\n\n') 
+
+    adc.histoPlot(filename, int(minRange.get()), (int(maxRange.get())+1), int(interval_bins.get()))
     histo_img = Image.open(filename[:-4] + '_histogram.png')
     width_histo, height_histo = histo_img.size
     
@@ -246,6 +254,15 @@ def start_state():
     smaller_histo_img = ImageTk.PhotoImage(histo_temp_img)
     new_img_histo = tk.Label(frame_histo_show, image = smaller_histo_img).place(x=0,y=0)
 
+    
+    table_Data = adc.tableData()
+    table = tkt.TableCanvas(frame_table, data = table_Data,
+            cellwidth=30, cellbackgr='white',
+            thefont=('Arial',11), width = 120, height = 650,
+            rowselectedcolor='#f8eba2')
+
+    table.show()
+   
     max_wh = max(img_width, img_height)
     if max_wh > 1100:
         factor = max_wh / 1000
@@ -263,7 +280,7 @@ def start_state():
         cv2.destroyAllWindows()
     print('break, destroyed all windows\n')
 
-
+    
 
 detect_method = tk.StringVar()
 auto_manual = 'auto'
@@ -288,12 +305,12 @@ def rd_button_clicked(value):
 
 highLowOff = tk.StringVar()
 highLowOff.set('OFF')
-binary = tk.Radiobutton(root, text='Activate Low-Binary Filter', variable = highLowOff, value='LOW', command= turn_binary)
-binary.grid(row=10, column=4, columnspan = 3, padx=1, pady=1)
-binary = tk.Radiobutton(root, text='Activate High-Binary Filter', variable = highLowOff, value='HIGH', command=turn_binary)
-binary.grid(row=11, column=4, columnspan = 3, padx=1, pady=1)
-binary = tk.Radiobutton(root, text='Binary Filter is OFF', variable = highLowOff, value='OFF', command=turn_binary)
-binary.grid(row=12, column=4, columnspan = 3, padx=1, pady=1)
+binary = tk.Radiobutton(frame_binary, text='Activate Low-Binary Filter', variable = highLowOff, value='LOW', command= turn_binary)
+binary.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
+binary = tk.Radiobutton(frame_binary, text='Activate High-Binary Filter', variable = highLowOff, value='HIGH', command=turn_binary)
+binary.grid(row=1, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
+binary = tk.Radiobutton(frame_binary, text='Binary Filter is OFF', variable = highLowOff, value='OFF', command=turn_binary)
+binary.grid(row=2, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
 
  
 img_button = tk.Button(frame_upload, text='CLICK\nto upload an image', relief='raised', command=open_file)
@@ -307,11 +324,9 @@ start_button.pack(fill='both')
 credit = tk.Label(root, text='R.Lu (v1.0.0), 2020', font='consolas 10 bold')
 credit.grid(row=12, column=11, sticky='se')
 
-table_label = tk.Label(root, text ='To export table: Right-click --> File --> Export CSV')
-table_label.grid(row = 11, column = 9, columnspan = 2)
-
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):
+        cv2.destroyAllWindows()
         root.quit()
 
 root.protocol("WM_DELETE_WINDOW", closing)
