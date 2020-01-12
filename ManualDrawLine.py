@@ -5,7 +5,6 @@ import numpy as np
 
 # now let's initialize the list of reference point
 
-global factor
 x_down =-1
 y_down =-1
 x_up =-1

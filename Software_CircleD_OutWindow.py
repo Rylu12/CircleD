@@ -21,6 +21,8 @@ root.geometry('1180x780')
 global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, frame_histo_show, sw_img, cv2_img, filename
 global accum_ratio, min_dist, p1, p2, minDiam, maxDiam, binImg, table_Data, table
 
+reset = False
+
 table_Data = {'rec1': {'Col1': 'Diam.', 'Col2': 'values', 'Col3': 'will'}, 'rec2':{'Col1': 'go', 'Col2': 'here', 'Col3': ' '}, 
                 'rec3': {'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 'rec4':{'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 
                 'rec5':{'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 'rec6': {'Col1': ' ', 'Col2': ' ', 'Col3': ' '}}
@@ -241,8 +243,9 @@ def turn_binary():
             return 'OFF'
 
 def start_state():
-    global filename, temp_img, detected_img, output, smaller_histo_img, ratio
+    global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset
     global new_img_histo, cv2_img, img_width, img_height, bin_img, table_Data, table
+
 
     try:
         filename
@@ -261,18 +264,38 @@ def start_state():
                 elif turn_binary() == 'LOW':
                     adc.autoDetectBin(filename, 100,int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
                         int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
-                print(str(ratio) + ' = ratio inside start state.....')
-                output = adc.processCircles(filename, ratio)
+
+                output = adc.processCircles(filename, ratio, mdc.image_diam)
+            
+                if adc.detected_circles is None:
+                    output_text.insert(tk.INSERT, '\nNo Circles Found!\n')  
+                    return
             else:
-                    mdc.load_image(filename)
-                    print(str(mdc.currDiam) + ', is the diam')
+                
+                manualDetect()
+                if reset == True:
+                    reset = False
+                    return
 
-            output_text.insert(tk.INSERT, str(output) + '\n\n') 
+                mdc.image_diam.pop(0)
 
-            if adc.detected_circles is None:
-                return
+                for items in range(len(mdc.image_diam)):
+                    adc.rad_list.append(mdc.image_diam[items])
+                
+                output = adc.processCircles(filename, ratio, mdc.image_diam)
+                
+            output_text.insert(tk.INSERT, str(output) + '\n\n')
 
-            adc.histoPlot(filename, int(minRange.get()), (int(maxRange.get())+1), int(interval_bins.get()))
+            if int(maxRange.get()) < int(np.max(mdc.image_diam)):
+                num = int(np.max(mdc.image_diam)%int(interval_bins.get()))
+                addtoMaxRange = int(interval_bins.get()) - num
+                new_maxRange = int(np.max(mdc.image_diam)) + addtoMaxRange
+            else:
+                new_maxRange = int(maxRange.get())
+
+            adc.histoPlot(filename, int(minRange.get()), new_maxRange, int(interval_bins.get()))
+            maxRange.delete(0, 'end')
+            maxRange.insert(0, str(new_maxRange))
             histo_img = Image.open(filename[:-4] + '_histogram.png')
             width_histo, height_histo = histo_img.size
             
@@ -290,22 +313,28 @@ def start_state():
                     rowselectedcolor='#f8eba2')
 
             table.show()
-           
-            max_wh = max(img_width, img_height)
-            if max_wh > 800:
-                factor = max_wh / 800
-            elif max_wh > 600 and max_wh < 800:
-                factor = max_wh
-            else:
-                factor = max_wh/800
-            
-            cv2_img = adc.img
-            cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow('Detected Circles', int(img_width / factor), int(img_height / factor))
-            cv2.imshow("Detected Circles", cv2_img)
-            cv2.waitKey(1)
-            if cv2.getWindowProperty('Detected Circles',1) == -1 :
-                cv2.destroyAllWindows()
+
+            mdc.image_diam = [0]
+            mdc.image_prev = []
+
+            if auto_manual == 'auto':
+                max_wh = max(img_width, img_height)
+                if max_wh > 800:
+                    factor = max_wh / 800
+                elif max_wh > 600 and max_wh < 800:
+                    factor = max_wh
+                else:
+                    factor = max_wh/800
+                
+                cv2_img = adc.img
+                cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('Detected Circles', int(img_width / factor), int(img_height / factor))
+                cv2.imshow("Detected Circles", cv2_img)
+                cv2.waitKey(1)
+                if cv2.getWindowProperty('Detected Circles',1) == -1 :
+                    cv2.destroyAllWindows()
+            else: 
+                return
 
 
 def calibrateScaleBar():
@@ -339,12 +368,60 @@ def calibrateScaleBar():
             pixel_dist.configure(state='normal')
             pixel_dist.delete(0, 'end')
             input_scale = float(str(scalebar.get()))
-            print(mdl.drawLine())
-            print(input_scale)
-            print('....')
+  
             ratio = np.round(abs(mdl.drawLine()/input_scale),1)
             pixel_dist.insert(0, str(ratio))
             pixel_dist.configure(state='readonly')
+
+
+def manualDetect():
+    global filename, ratio, reset
+    
+    try:
+        filename
+    except NameError:
+        filename = None
+
+    if filename != None:
+
+        if filename:
+            try:
+                mdc.load_img(filename, ratio)
+            except NameError:
+                output_text.insert(tk.INSERT, '\nERROR...PLEASE CALIBRATE PIXEL/DISTANCE VALUE FIRST!\n')
+                reset = True
+                return
+
+            last_value = 0
+
+            while True:
+                cv2.imshow("Manual Draw Mode", mdc.image)
+                
+                if mdc.diamCircles(True) != last_value:
+                    print(str(mdc.diamCircles(True)) +' = diam value')
+
+                    last_value = mdc.diamCircles(True)
+
+                key = cv2.waitKey(1) & 0xFF
+                    
+                if key == ord("d") or key == ord("D"):
+                    try:
+
+                        mdc.diamCircles(False)
+                        mdc.image = mdc.prev_img[mdc.b]
+
+                    except IndexError:
+                        output_text.insert(tk.INSERT, '\nINDEX ERROR... PLEASE RESTART PROGRAM!\n')  
+                        cv2.destroyAllWindows()
+                        break
+
+                elif cv2.getWindowProperty('Manual Draw Mode',1) == -1 :
+                    break    
+        new_name = filename[:-4] + '_detected' + filename[-4:]
+        cv2.imwrite(new_name,mdc.image)
+        cv2.destroyAllWindows()
+                    
+
 
 detect_method = tk.StringVar()
 auto_manual = 'auto'
