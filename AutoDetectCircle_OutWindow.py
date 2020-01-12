@@ -9,21 +9,20 @@ global result, img, table_data, up_img, pixel_distance, detected_circles
 
 dp = 1
 accum_ratio = 1
-min_dist = 20
+min_dist = 5
 p1 = 40
 p2 = 30
-minR = 1
-maxR = 60
-scalebar = 1
+minDiam = 1
+maxDiam = 30
+scalebar = 10
 min_range = 0
 max_range = 100
 intervals = 10
 
-
 def clear_plt():
     plt.clf()
 
-def autoDetect(up_img, accum_ratio, min_dist, p1, p2, minR, maxR):
+def autoDetect(up_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
 
     # Read image.
@@ -35,29 +34,36 @@ def autoDetect(up_img, accum_ratio, min_dist, p1, p2, minR, maxR):
     # Blur using 3 * 3 kernel.
     gray_blurred = cv2.blur(gray, (5, 5))
 
+
+
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(gray_blurred, 
-                       cv2.HOUGH_GRADIENT, dp = accum_ratio, minDist = min_dist, 
-                       param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = int(min_dist*pixel_distance), 
+                    param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
 
 
-def autoDetectBin(up_img, threshold,accum_ratio, min_dist, p1, p2, minR, maxR):
+
+
+
+def autoDetectBin(up_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
-    print(str(threshold) + ' <-- is threshold\n')
+
     img = cv2.imread(up_img, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     thres,binImg = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
     # Blur using 3 * 3 kernel.
     blurred = cv2.blur(binImg, (5, 5))
 
+
+
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(blurred, 
-                       cv2.HOUGH_GRADIENT, dp = accum_ratio, minDist = min_dist, 
-                       param1 = p1, param2 = p2, minRadius = minR, maxRadius = maxR)
+                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = int(min_dist*pixel_distance), 
+                    param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
 
 
 def processCircles(up_img, pixel_distance):
-    global detected_circles, rad_list, result, img
+    global detected_circles, rad_list, result, img, bottom_10percentile, top_90percentile
     # Draw circles that are detected.
     rad_list=[]
     img = cv2.imread(up_img, cv2.IMREAD_COLOR)
@@ -94,27 +100,44 @@ def processCircles(up_img, pixel_distance):
         bottom_10percentile = int(len(rad_list)*0.1)
         top_90percentile = int(len(rad_list)*0.9)
 
-        result = 'Number of circles found: ' + str(detected_circles.shape[1]) 
-        result +='\nAverage diameter of circles = ' + "%.1f"%np.average(rad_list) + 'um' 
+        result = '# of circles found: ' + str(detected_circles.shape[1]) 
+        result +='\nAvg diam. = ' + "%.1f"%np.average(rad_list) + 'um' 
         result +='\nD10 = '+ str(rad_list[bottom_10percentile])+'um'+'\nD50 = ' + "%.1f"%np.median(rad_list) + "um" 
         result +='\nD90 = '+ str(rad_list[top_90percentile])+'um'
 
     return result
 
 def tableData():
-    global rad_list, row_list, dataForTable, col_list
+    global rad_list, row_list, dataForTable, col_list, bottom_10percentile, top_90percentile, detected_circles
     dataForTable = {}
     col_list = []
     row_list = []
     Diam_um = 'Diameter(um)'
-    for items in range(len(rad_list)):
-        col_list.append(dict(Diam_um = rad_list[items]))
+    if len(rad_list)>0:
+        for items in range(len(rad_list)):
+            col_list.append(dict(Diam_um = rad_list[items]))
 
-    for rows in range(len(rad_list)):
-        row_list.append('rec'+ str(rows+1))
-    
-    dataForTable = dict(zip(row_list,col_list))
+        for rows in range(len(rad_list)):
+            row_list.append('rec'+ str(rows+1))
+        
+        dataForTable = dict(zip(row_list,col_list))
 
+        try:    
+            temp_one = dataForTable['rec1']['Diam_um']
+            temp_two = dataForTable['rec2']['Diam_um']
+            temp_three = dataForTable['rec3']['Diam_um']
+            temp_four = dataForTable['rec4']['Diam_um']
+            temp_five = dataForTable['rec5']['Diam_um']
+
+            dataForTable.update({'rec1':{'Diam_um': str(temp_one) , 'Col2': '# of Circles', 'Col3': str(detected_circles.shape[1]) },
+            'rec2':{'Diam_um': str(temp_two),'Col2': 'Avg Diam.(um)', 'Col3': "%.1f"%np.average(rad_list)}, 
+            'rec3':{'Diam_um': str(temp_three) ,'Col2': 'D10 (um)', 'Col3': str(rad_list[bottom_10percentile])},
+            'rec4':{'Diam_um': str(temp_four),'Col2': 'D50 (um)', 'Col3': "%.1f"%np.median(rad_list)},
+            'rec5':{'Diam_um': str(temp_five) ,'Col2': 'D90 (um)', 'Col3': str(rad_list[top_90percentile])}
+            })
+
+        except KeyError:
+            pass
     return dataForTable
 
 
@@ -131,8 +154,6 @@ def histoPlot(up_img, min_range, max_range, intervals):
     plt.clf()
     
 
-    print('# of count in each bin = \n', n)
-    print('Bins range = \n', np.ndarray.round(bins))
 
    # pd.DataFrame(rad_list).to_excel('emulsions_D50_list_1.xlsx',header=False, index=False)
     
