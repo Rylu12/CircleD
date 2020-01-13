@@ -38,11 +38,8 @@ def draw_circle(event, x, y, flags, param):
             prev_img = np.array(image_prev)
            
             b = prev_img.shape[0]
-            print(str(b) + ' = b value...in draw_circle MDC')
             image_diam.append(np.round((rad*2/ratio),1))
         except MemoryError:
-            print('Memory error.....')
-            print()
             cv2.destroyAllWindows()
 
 def load_img(up_img, pixel_dist):
@@ -74,7 +71,6 @@ def diamCircles(state):
         image_diam.pop()
         image_prev.pop()
         b = b-1
-        print('pop occured..., ' + str(b) + ' = is now new value of b')
     elif b == (len(image_diam)-1):
         return image_diam[b]
 
