@@ -5,7 +5,7 @@ import pandas as pd
 import openpyxl
 
 #Get pixel/distance (using ImageJ software) to output actual diameters of circles
-global result, img, table_data, up_img, pixel_distance, detected_circles
+global result, table_data, resized_img, pixel_distance, detected_circles
 
 dp = 1
 accum_ratio = 1
@@ -24,17 +24,16 @@ detected_circles = []
 def clear_plt():
     plt.clf()
 
-def autoDetect(up_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
+def autoDetect(resized_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
 
-    # Read image.
-    img = cv2.imread(up_img, cv2.IMREAD_COLOR)
-
     # Convert to grayscale.
+    img = resized_img
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Blur using 3 * 3 kernel.
-    gray_blurred = cv2.blur(gray, (5, 5))
+    gray_blurred = cv2.blur(gray, (3, 3))
 
 
 
@@ -45,15 +44,15 @@ def autoDetect(up_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_di
 
 
 
-def autoDetectBin(up_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
+def autoDetectBin(resized_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
 
-    img = cv2.imread(up_img, cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thres,binImg = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+    img = resized_img
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thres,binImg = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
     # Blur using 3 * 3 kernel.
-    blurred = cv2.blur(binImg, (5, 5))
-
+    blurred = cv2.blur(binImg, (3, 3))
 
 
     # Apply Hough transform on the blurred image.
@@ -62,15 +61,18 @@ def autoDetectBin(up_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxD
                     param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
 
 
-def processCircles(up_img, pixel_distance, manual_list):
-    global detected_circles, rad_list, result, img, bottom_10percentile, top_90percentile
+def processCircles(resized_img, filename, pixel_distance, manual_list):
+    global detected_circles, rad_list, img, result, bottom_10percentile, top_90percentile
     # Draw circles that are detected.
+    
+    img = resized_img
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     rad_list=[]
-    img = cv2.imread(up_img, cv2.IMREAD_COLOR)
-    result = ''
+
+    result = '\n'
     try:
         if (detected_circles is None) and (len(manual_list) == 1):
-            return 'No circles found!\n'
+            return '\nNo circles found!\n'
 
         elif len(manual_list) >1:
             manual_list.sort()
@@ -94,8 +96,8 @@ def processCircles(up_img, pixel_distance, manual_list):
                 cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
                 
             
-            new_name = up_img[:-4] + '_detected' + up_img[-4:]
-            cv2.imwrite(new_name,img)
+            new_name = filename[:-4] + '_detected' + filename[-4:]
+            cv2.imwrite(new_name, img)
 
             #Loop to convert radius (pixel) values to diameter
             for x in range(detected_circles.shape[1]):
@@ -121,7 +123,7 @@ def tableData():
     dataForTable = {}
     col_list = []
     row_list = []
-    Diam_um = 'Diameter(um)'
+    Diam_um = 'Diameter (um)'
 
     if len(rad_list)>0:
         for items in range(len(rad_list)):
@@ -140,7 +142,7 @@ def tableData():
             temp_five = dataForTable['rec5']['Diam_um']
 
             dataForTable.update({'rec1':{'Diam_um': str(temp_one) , 'Col2': '# of Circles', 'Col3': str(len(rad_list))},
-            'rec2':{'Diam_um': str(temp_two),'Col2': 'Avg Diam.(um)', 'Col3': "%.1f"%np.average(rad_list)}, 
+            'rec2':{'Diam_um': str(temp_two),'Col2': 'Avg Diam (um)', 'Col3': "%.1f"%np.average(rad_list)}, 
             'rec3':{'Diam_um': str(temp_three) ,'Col2': 'D10 (um)', 'Col3': str(rad_list[bottom_10percentile])},
             'rec4':{'Diam_um': str(temp_four),'Col2': 'D50 (um)', 'Col3': "%.1f"%np.median(rad_list)},
             'rec5':{'Diam_um': str(temp_five) ,'Col2': 'D90 (um)', 'Col3': str(rad_list[top_90percentile])}
@@ -151,7 +153,7 @@ def tableData():
     return dataForTable
 
 
-def histoPlot(up_img, min_range, max_range, intervals):
+def histoPlot(filename, min_range, max_range, intervals):
     global rad_list
     #Plot histogram
     plt.xlabel('Diameter (um)')
@@ -160,7 +162,7 @@ def histoPlot(up_img, min_range, max_range, intervals):
     (n, bins, patch) = plt.hist([rad_list], bins=np.arange(min_range,max_range+1,intervals), rwidth=0.9)
     plt.xticks(np.arange(min_range,max_range,intervals))
   #  plt.gca().grid(which='major', axis='y')
-    plt.savefig((up_img[:-4] + '_histogram.png'), dpi = 500)
+    plt.savefig((filename[:-4] + '_histogram.png'), dpi = 500)
     plt.clf()
     
 

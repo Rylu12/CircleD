@@ -12,9 +12,9 @@ import ManualDrawCircle as mdc
 
  
 root = tk.Tk()
-root.title("Spherical Detection Program")
+root.title("CirlceD - The Circle Detection Program")
 # oot.iconbitmap()
-root.geometry('1180x780')
+root.geometry('1200x700')
 # root.resizable(0, 0)
 # root.pack_propagate(0)
  
@@ -22,6 +22,7 @@ global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, f
 global accum_ratio, min_dist, p1, p2, minDiam, maxDiam, binImg, table_Data, table
 
 reset = False
+calibrated = False
 
 table_Data = {'rec1': {'Col1': 'Diam.', 'Col2': 'values', 'Col3': 'will'}, 'rec2':{'Col1': 'go', 'Col2': 'here', 'Col3': ' '}, 
                 'rec3': {'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 'rec4':{'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 
@@ -29,17 +30,15 @@ table_Data = {'rec1': {'Col1': 'Diam.', 'Col2': 'values', 'Col3': 'will'}, 'rec2
 
 output = 'Output results will display below...\n----------------------\n'
 start_state = False
-
-frame_logo = tk.LabelFrame(root, width=80)
-frame_logo.grid(row=0, column=0, rowspan = 10, columnspan=7, padx=10, pady=5)
  
-logo_img = ImageTk.PhotoImage(Image.open('circled1.png'))
-logo_show = tk.Label(frame_logo, image=logo_img).pack()
+logo_img = ImageTk.PhotoImage(Image.open('circleD_V.png'))
+logo_show = tk.Label(root, image=logo_img)
+logo_show.grid(row =0, column = 0, rowspan = 15)
  
 frame_intro = tk.LabelFrame(root, width=80)
-frame_intro.grid(row=10, column=0, rowspan=20, columnspan=7, padx=10, pady=5)
+frame_intro.grid(row=0, column=1, rowspan=15, columnspan=6, pady=10, sticky = 'w')
  
-intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=70, height=11, undo=False)
+intro_text = tkst.ScrolledText(frame_intro, wrap=tk.WORD, width=65, height=13, undo=False)
 intro_text['font'] = ('consolas', '10')
 intro_text.insert(tk.INSERT,
                   "Welcome to the Spherical Detection program!\n\nThis software program uses the 'Circle Hough Transform' (CHT) feature extraction technique to detect circles in images. "
@@ -52,34 +51,36 @@ intro_text.insert(tk.INSERT,
 intro_text.pack(expand=True, fill='both')
  
 frame_output = tk.LabelFrame(root, bg='BLACK', width=30)
-frame_output.grid(row=0, column=8, rowspan=65, columnspan=2, padx=10, pady=5, sticky='n')
+frame_output.grid(row=0, column=8, rowspan=45, columnspan=2, padx=10, pady=5, sticky='n')
  
-output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=25, height=30, undo=False)
+output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=27, height=25, undo=False)
 output_text['font'] = ('consolas', '11')
 output_text.insert(tk.INSERT, str(output))
 output_text.pack(expand=True, anchor='n')
  
 frame_rdbutton = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_rdbutton.grid(row=30, column=0, rowspan=10, columnspan=5, padx=10, pady=5, sticky='w')
+frame_rdbutton.grid(row=15, column=0, rowspan=10, columnspan=5, padx=10, pady=5, sticky='w')
 frame_start = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_start.grid(row=30, column=5, rowspan=10, columnspan=1, padx=0, pady=5)
+frame_start.grid(row=15, column=5, rowspan=10, columnspan=1, padx=0, pady=5)
 frame_upload = tk.LabelFrame(root, width=70, padx=10, pady=5)
-frame_upload.grid(row=40, rowspan=10, column=5, columnspan=1, padx=0, pady=5)
+frame_upload.grid(row=25, rowspan=10, column=5, columnspan=1, padx=0, pady=5)
  
 frame_preview = tk.LabelFrame(root)
-frame_preview.grid(row=50, column=4, rowspan=40, columnspan=3, padx=10, pady=5, sticky = 'nw')
+frame_preview.grid(row=35, column=4, rowspan=35, columnspan=3, padx=10, pady=5, sticky = 'nw')
 
 frame_binary = tk.LabelFrame(root, text = "Binary Filter Mode")
-frame_binary.grid(row=75, column=8, rowspan = 15, columnspan=3, padx=10, pady=5, sticky = 'nw')
+frame_binary.grid(row=57, column=8, rowspan = 13, columnspan=3, padx=10, pady=5, sticky = 'nw')
 
 frame_histo_show = tk.LabelFrame(root)
-frame_histo_show.grid(row=60, column = 0, rowspan = 30, columnspan = 4, padx=10, pady=5, sticky = 'nw')
+frame_histo_show.grid(row=40, column = 0, rowspan = 32, columnspan = 4, padx=10, sticky = 'sw')
 
 frame_table = tk.LabelFrame(root)
-frame_table.grid(row = 0, column = 10,  rowspan = 65, columnspan = 2, padx=10, pady=5, sticky = 'n')
+frame_table.grid(row = 0, column = 10,  rowspan = 45, columnspan = 2, padx=10, pady=5, sticky = 'n')
 
-table_label = tk.Label(root, text ='To Export Table:\n------\nRight-Click\n|\nV\nFile\n|\nV\nExport CSV')
-table_label.grid(row = 65, rowspan = 15, column = 11, sticky = 'n')
+
+table_label = tk.Label(root, text ='To Export Table Above:\n------\nRight-Click -> File -> Export CSV', font=("Helvetica", 9))
+table_label.grid(row = 56, rowspan = 10, column = 10, columnspan = 2)
+
 
 smaller_histo_img = ImageTk.PhotoImage(Image.open('black320x240.png'))
 new_img_histo = tk.Label(frame_histo_show,image = smaller_histo_img)
@@ -87,7 +88,7 @@ new_img_histo.pack()
 
  
 frame_HoughCircle = tk.LabelFrame(root, text='Hough Circle Parameters', width=70, padx=10, pady=5)
-frame_HoughCircle.grid(row=40, column=0, rowspan = 10, columnspan=5, padx=10, pady=5, sticky='w')
+frame_HoughCircle.grid(row=25, column=0, rowspan = 10, columnspan=5, padx=10, pady=5, sticky='w')
  
 param_minDist = tk.Entry(frame_HoughCircle, width=5)
 param_minDist.insert(0, str(adc.min_dist))
@@ -126,24 +127,8 @@ label_p2 = tk.Label(frame_HoughCircle, text=' Param2:')
 label_p2.grid(row=1, column=4, padx=1, pady=1)
 
 
-frame_scalebar = tk.LabelFrame(root, text = "Calibrates Pixel/Distance Ratio",width=70, padx=10, pady=5)
-frame_scalebar.grid(row=64, column=8,  rowspan = 11, columnspan=3, padx=10, pady=5, sticky='w')
-
-scalebar = tk.Entry(frame_scalebar, width=10)
-scalebar.insert(0, str(adc.scalebar))
-scalebar.grid(row=2, column=4, columnspan = 2, padx=1, pady=1, sticky = 'w')
-label_scalebar = tk.Label(frame_scalebar, text='Known distance of scale-bar (um):')
-label_scalebar.grid(row=2, column=0, columnspan = 4, padx=1, pady=1)
-
-pixel_dist = tk.Entry(frame_scalebar, width=10, state = 'readonly')
-pixel_dist.grid(row=3, column=1, padx=1, pady=1, sticky = 'w')
-label_pixel_dist = tk.Label(frame_scalebar, text='Pixel/Distance Ratio:')
-label_pixel_dist.grid(row=3, column=0, padx=1, pady=1, sticky = 'w')
-
-
-
 frame_histo_param = tk.LabelFrame(root, text='Histogram Parameters', width=70, padx=10, pady=5)
-frame_histo_param.grid(row=50, column=0, rowspan = 5, columnspan=4, padx=10, pady=5, sticky = 'w')
+frame_histo_param.grid(row=35, column=0, rowspan = 5, columnspan=4, padx=10, pady=5, sticky = 'w')
  
 interval_bins = tk.Entry(frame_histo_param, width=5)
 interval_bins.insert(0, str(adc.intervals))
@@ -164,6 +149,51 @@ label_maxRange = tk.Label(frame_histo_param, text='Max Range:')
 label_maxRange.grid(row=0, column=4, padx=1, pady=1)
 
 
+frame_scalebar = tk.LabelFrame(root, text = "Calibrates Pixel/Distance Ratio", padx=5, pady=5)
+frame_scalebar.grid(row=44, column=8,  rowspan = 13, columnspan=3, padx=10, pady=5, sticky='w')
+
+scalebar = tk.Entry(frame_scalebar, width=10)
+scalebar.insert(0, str(adc.scalebar))
+scalebar.grid(row=2, column=4, columnspan = 2, padx=1, pady=1, sticky = 'w')
+label_scalebar = tk.Label(frame_scalebar, text='Known distance of scale-bar (um):')
+label_scalebar.grid(row=2, column=0, columnspan = 4, padx=1, pady=1)
+
+pixel_dist = tk.Entry(frame_scalebar, width=10, state = 'readonly')
+pixel_dist.grid(row=3, column=1, padx=1, pady=1, sticky = 'w')
+label_pixel_dist = tk.Label(frame_scalebar, text='Pixel/Distance Ratio:')
+label_pixel_dist.grid(row=3, column=0, padx=1, pady=1, sticky = 'w')
+
+frame_sbLocation = tk.LabelFrame(root, text ='Scale-Bar Location?', padx = 5, pady = 5)
+frame_sbLocation.grid(row = 44, column = 11, rowspan = 13, padx = 5, pady=5, sticky = 'w')
+
+
+sb_text = tk.StringVar()
+sb_location = 'br'
+sb_text.set('br')
+ 
+tk.Radiobutton(frame_sbLocation, text="Top-Left",
+               variable=sb_text, value='tl', command=lambda: sbLocation_clicked('tl')).grid(row = 0, column = 0, sticky = 'w')
+tk.Radiobutton(frame_sbLocation, text="Top-Right",
+               variable=sb_text, value='tr', command=lambda: sbLocation_clicked('tr')).grid(row = 0, column = 1, sticky = 'w')
+tk.Radiobutton(frame_sbLocation, text="Bottom-Left",
+               variable=sb_text, value='bl', command=lambda: sbLocation_clicked('bl')).grid(row = 1, column = 0, sticky = 'w')
+tk.Radiobutton(frame_sbLocation, text="Bottom-Right",
+               variable=sb_text, value='br', command=lambda: sbLocation_clicked('br')).grid(row = 1, column = 1, sticky = 'w')
+ 
+ 
+def sbLocation_clicked(value):
+    global sb_location
+    if value == 'tl':
+        sb_location = value
+    elif value == 'tr':
+        sb_location = value
+    elif value == 'bl':
+        sb_location = value
+    elif value == 'br':
+        sb_location = value
+
+
+
  
 black_img = Image.open('black300.png')
 temp_img = ImageTk.PhotoImage(black_img)
@@ -173,16 +203,19 @@ placeholder_img = tk.Label(frame_preview, image=temp_img).pack()
 
 table = tkt.TableCanvas(frame_table, data = table_Data,
             cellwidth=30, cellbackgr='white',
-            thefont=('Arial',10), width = 180, height = 520,
+            thefont=('Arial',10), width = 182, height = 430,
             rowselectedcolor='#f8eba2')
 table.show()
  
-
+yesNoState = tk.StringVar()
+yesNoState.set('NO')
+binState = 'NO'
 
 def open_file():
-    global open_img, window_img, placeholder_img, show_img, img_width, img_height, filename, adj_height
+    global open_img, window_img, placeholder_img, show_img, img_width, img_height, filename
+    global max_wh, adj_height, binary_state, resized_img_cv2, resize_img, calibrated
 
-    highLowOff.set('OFF')
+    calibrated = False
     black_img = Image.open('black300.png')
     temp_img = ImageTk.PhotoImage(black_img)
     placeholder_img = tk.Label(frame_preview, image=temp_img, bg ='black').place(x=0, y=0)
@@ -195,28 +228,17 @@ def open_file():
         try:  
             open_img = Image.open(filename).convert("RGB")
         except IOError: 
-            pass
+            return
      
         img_width, img_height = open_img.size
         
         max_wh = max(img_width, img_height)
 
-        if max_wh > 1100:
-            output_text.insert(tk.INSERT, '\nYour image is too big (>1100 pixels)! A scaled-down copy is made and will be used instead.\n\n')
-            resize_copy = max_wh/1100
-            resize_img = open_img.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
-            filename = (filename[:-4] + '_smaller' + filename[-4:])
-            resize_img.save(filename) 
-
-        elif max_wh <500:
-            output_text.insert(tk.INSERT, '\nYour image is too small (<500 pixels)! A scaled-up copy is made and will be used instead.\n\n')
-            resize_copy = max_wh/1000
-            resize_img = open_img.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
-            filename = (filename[:-4] + '_bigger' + filename[-4:])
-            resize_img.save(filename)    
+        resize_copy = max_wh/1000
+        resize_img = open_img.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
+        resized_img_cv2 = np.asarray(resize_img)  
 
         factor = max_wh/300
-        
 
         open_img = open_img.resize((int(img_width / factor), int(img_height / factor)))
 
@@ -224,151 +246,138 @@ def open_file():
 
         window_img = ImageTk.PhotoImage(open_img)
         show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
+        binary_state.config(state = 'normal')
 
 
-def turn_binary():
-    global filename, open_img, window_img, adj_height, binImg
-    try:
-        open_img
-    except NameError:
-        open_img = None
-    if open_img != None:
-
-        window_img = ImageTk.PhotoImage(open_img)
-        show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
-        state = highLowOff.get()
-
-        if state == 'HIGH':
-            img = np.asarray(open_img)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            thres,binImg = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
-            new_img = Image.fromarray(binImg)
-            window_img = ImageTk.PhotoImage(new_img)
-            show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
-            return 'HIGH'
-
-        elif state == 'LOW':
-            img = np.asarray(open_img)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            thres,binImg = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
-            new_img = Image.fromarray(binImg)
-            window_img = ImageTk.PhotoImage(new_img)
-            show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
-            return 'LOW'
-
-        elif state == 'OFF':
-            return 'OFF'
 
 def start_state():
-    global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset
-    global new_img_histo, cv2_img, img_width, img_height, bin_img, table_Data, table
+    global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset, binState, pixel_dist
+    global new_img_histo, cv2_img, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
+    global resized_img_cv2, max_wh, calibrated
 
-
+ 
     try:
-        filename
-    except NameError:
+        open_img_again = Image.open(filename).convert("RGB")
+        max_wh = max(img_width, img_height)
+        resize_copy = max_wh/1000
+        resize_img = open_img_again.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
+        resized_img_cv2 = np.asarray(resize_img)  
+
+    except (NameError, AttributeError) as e:
+        output_text.insert(tk.INSERT, '\nERROR...Please upload an image before running!\n')
+
         filename = None
+
     if filename != None:
+        if calibrated != True:
+            output_text.insert(tk.INSERT, '\nERROR...Please calibrate image before running!\n')
+            return
         if filename:
-    
-            if auto_manual == 'auto':
-                if turn_binary() == 'OFF':
-                    adc.autoDetect(filename, int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
-                        int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
-                elif turn_binary() == 'HIGH':
-                    adc.autoDetectBin(filename, 150,int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
-                        int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
-                elif turn_binary() == 'LOW':
-                    adc.autoDetectBin(filename, 100,int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
-                        int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
+            pixel_dist.configure(state='normal')
+            pixel_dist.delete(0, 'end')
+            input_scale = float(str(scalebar.get()))
+  
+            ratio = np.round(abs(mdl.drawLine()/input_scale),1)
+            pixel_dist.insert(0, str(ratio))
+            pixel_dist.configure(state='readonly')
 
-                output = adc.processCircles(filename, ratio, mdc.image_diam)
-            
-                if adc.detected_circles is None:
-                    output_text.insert(tk.INSERT, '\nNo Circles Found!\n')  
-                    return
-            else:
-                
-                manualDetect()
-                if reset == True:
-                    reset = False
-                    return
-
-                mdc.image_diam.pop(0)
-
-                for items in range(len(mdc.image_diam)):
-                    adc.rad_list.append(mdc.image_diam[items])
-                
-                output = adc.processCircles(filename, ratio, mdc.image_diam)
-                
-            output_text.insert(tk.INSERT, str(output) + '\n\n')
             try:
-                if int(maxRange.get()) < int(np.max(mdc.image_diam)):
-                    num = int(np.max(mdc.image_diam)%int(interval_bins.get()))
-                    addtoMaxRange = int(interval_bins.get()) - num
-                    new_maxRange = int(np.max(mdc.image_diam)) + addtoMaxRange
-                else:
-                    new_maxRange = int(maxRange.get())
-            except ValueError:
-                return
+                if auto_manual == 'auto':
 
-            adc.histoPlot(filename, int(minRange.get()), new_maxRange, int(interval_bins.get()))
-            maxRange.delete(0, 'end')
-            maxRange.insert(0, str(new_maxRange))
-            histo_img = Image.open(filename[:-4] + '_histogram.png')
-            width_histo, height_histo = histo_img.size
-            
-            factor_histo = width_histo/320
-            histo_temp_img = histo_img.resize((int(width_histo/factor_histo), int(height_histo/factor_histo)))
+                    if binState == 'NO':
+                        adc.autoDetect(resized_img_cv2, int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
+                            int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
+                    elif binState == 'YES':
+                        adc.autoDetectBin(resized_img_cv2, int(binary_thresholdBar.get()),int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
+                            int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
 
-            smaller_histo_img = ImageTk.PhotoImage(histo_temp_img)
-            new_img_histo = tk.Label(frame_histo_show, image = smaller_histo_img).place(x=0,y=0)
-
-
-            table_Data = adc.tableData()
-            table = tkt.TableCanvas(frame_table, data = table_Data,
-                    cellwidth=30, cellbackgr='white',
-                    thefont=('Arial',10), width = 180, height = 520,
-                    rowselectedcolor='#f8eba2')
-
-            table.show()
-
-            mdc.image_diam = [0]
-            mdc.image_prev = []
-
-            if auto_manual == 'auto':
-                max_wh = max(img_width, img_height)
-                if max_wh > 800:
-                    factor = max_wh / 800
-                elif max_wh > 600 and max_wh < 800:
-                    factor = max_wh
-                else:
-                    factor = max_wh/800
+                    output = adc.processCircles(resized_img_cv2, filename, ratio, mdc.image_diam)
                 
-                cv2_img = adc.img
-                cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
-                cv2.resizeWindow('Detected Circles', int(img_width / factor), int(img_height / factor))
-                cv2.imshow("Detected Circles", cv2_img)
-                cv2.waitKey(1)
-                if cv2.getWindowProperty('Detected Circles',1) == -1 :
-                    cv2.destroyAllWindows()
-            else: 
+                    if adc.detected_circles is None:
+                        output_text.insert(tk.INSERT, '\nNo Circles Found!\n')  
+                        return
+                else:
+      
+                    manualDetect()
+                    if reset == True:
+                        reset = False
+                        return
+
+                    mdc.image_diam.pop(0)
+
+                    for items in range(len(mdc.image_diam)):
+                        adc.rad_list.append(mdc.image_diam[items])
+                    
+                    output = adc.processCircles(resized_img_cv2, filename, ratio, mdc.image_diam)
+                    
+                output_text.insert(tk.INSERT, str(output) + '\n\n')
+
+                try:
+                    if int(maxRange.get()) < int(np.max(mdc.image_diam)):
+                        num = int(np.max(mdc.image_diam)%int(interval_bins.get()))
+                        addtoMaxRange = int(interval_bins.get()) - num
+                        new_maxRange = int(np.max(mdc.image_diam)) + addtoMaxRange
+                    else:
+                        new_maxRange = int(maxRange.get())
+                except ValueError1:
+                    output_text.insert(tk.INSERT, '\nERROR...Type: ValueError1!\n')
+                    return
+
+                adc.histoPlot(filename, int(minRange.get()), new_maxRange, int(interval_bins.get()))
+                maxRange.delete(0, 'end')
+                maxRange.insert(0, str(new_maxRange))
+                histo_img = Image.open(filename[:-4] + '_histogram.png')
+                width_histo, height_histo = histo_img.size
+                
+                factor_histo = width_histo/320
+                histo_temp_img = histo_img.resize((int(width_histo/factor_histo), int(height_histo/factor_histo)))
+
+                smaller_histo_img = ImageTk.PhotoImage(histo_temp_img)
+                new_img_histo = tk.Label(frame_histo_show, image = smaller_histo_img).place(x=0,y=0)
+
+
+                table_Data = adc.tableData()
+                table = tkt.TableCanvas(frame_table, data = table_Data,
+                        cellwidth=30, cellbackgr='white',
+                        thefont=('Arial',10), width = 182, height = 430,
+                        rowselectedcolor='#f8eba2')
+
+                table.show()
+
+                mdc.image_diam = [0]
+                mdc.image_prev = []
+
+                if auto_manual == 'auto':
+            
+                    cv2_img = adc.img
+                    cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
+                    cv2.imshow("Detected Circles", cv2_img)
+                    cv2.waitKey(1)
+                    if cv2.getWindowProperty('Detected Circles',1) == -1 :
+                        cv2.destroyAllWindows()
+                else: 
+                    return
+            except NameError:
+                output_text.insert(tk.INSERT, '\nERROR...Type: NameError2!\n')
                 return
+            except AttributeError:
+                output_text.insert(tk.INSERT, '\nERROR...Type: AttributeError2!\n')
 
 
 def calibrateScaleBar():
-    global filename, ratio
-    
+    global filename, ratio, sb_location, resized_img_cv2, calibrated
+    calibrated = True
     try:
         filename
     except NameError:
+        output_text.insert(tk.INSERT, '\nERROR...Type: NameError3!\n')
         filename = None
 
     if filename != None:
 
         if filename:
 
-            mdl.load_img(filename)
+            mdl.load_img(resized_img_cv2, sb_location)
 
             while True:
                 cv2.imshow("Cropped to measure scale-bar", mdl.cropped)
@@ -394,20 +403,21 @@ def calibrateScaleBar():
 
 
 def manualDetect():
-    global filename, ratio, reset
+    global filename, ratio, reset, resized_img_cv2
     
     try:
         filename
     except NameError:
+        output_text.insert(tk.INSERT, '\nERROR...Type: NameError4!\n')
         filename = None
 
     if filename != None:
 
         if filename:
             try:
-                mdc.load_img(filename, ratio)
+                mdc.load_img(resized_img_cv2, ratio)
             except NameError:
-                output_text.insert(tk.INSERT, '\nERROR...PLEASE CALIBRATE PIXEL/DISTANCE VALUE FIRST!\n')
+                output_text.insert(tk.INSERT, '\nERROR...Type: NameError5!\n')
                 reset = True
                 return
 
@@ -429,7 +439,7 @@ def manualDetect():
                         mdc.image = mdc.prev_img[mdc.b]
 
                     except IndexError:
-                        output_text.insert(tk.INSERT, '\nINDEX ERROR... PLEASE RESTART PROGRAM!\n')  
+                        output_text.insert(tk.INSERT, '\nERROR...Type: IndexError1!\n')
                         cv2.destroyAllWindows()
                         break
 
@@ -438,8 +448,50 @@ def manualDetect():
         new_name = filename[:-4] + '_detected' + filename[-4:]
         cv2.imwrite(new_name,mdc.image)
         cv2.destroyAllWindows()
-                    
+           
 
+def rd_button_clicked(value):
+    global auto_manual
+    if value == 'auto':
+        auto_manual = value
+    else:
+        auto_manual = value         
+
+def turn_binary(state):
+    global open_img, window_img, adj_height, binImg, binary_state, binState
+    try:
+        open_img
+    except NameError:
+        open_img = None
+    if open_img != None:
+
+        window_img = ImageTk.PhotoImage(open_img)
+        show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
+        binState = yesNoState.get()
+        state = binState
+        thresholdBar = int(binary_thresholdBar.get())
+ 
+        if state == 'YES':
+            img = np.asarray(open_img)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            thres,binImg = cv2.threshold(img, thresholdBar, 255, cv2.THRESH_BINARY)
+            new_img = Image.fromarray(binImg)
+            window_img = ImageTk.PhotoImage(new_img)
+            show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
+            return 'YES'
+
+        elif state == 'NO':
+            return 'NO'
+
+
+
+
+binary_thresholdBar = tk.Scale(frame_binary, from_ = 1, to = 254, orient = 'horizontal', command = turn_binary)
+binary_thresholdBar.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
+binary_thresholdBar.set(127)
+
+binary_state = tk.Checkbutton(frame_binary, text='TURN ON', variable = yesNoState, onvalue='YES', offvalue='NO', state = 'disabled', command=lambda: turn_binary(yesNoState))
+binary_state.grid(row=1, column=4, columnspan = 3, padx=1, pady=1)
 
 detect_method = tk.StringVar()
 auto_manual = 'auto'
@@ -450,29 +502,10 @@ tk.Radiobutton(frame_rdbutton, text="MANUAL DETECT - Manually draw circles to ge
 tk.Radiobutton(frame_rdbutton, text="AUTO DETECT - Uses 'Circle Hough Transform' to detect circles",
                variable=detect_method, value='auto detect', command=lambda: rd_button_clicked('auto')).pack(anchor='w')
  
- 
-def rd_button_clicked(value):
-    global auto_manual
-    if value == 'auto':
-        auto_manual = value
-    else:
-        auto_manual = value
-
-highLowOff = tk.StringVar()
-highLowOff.set('OFF')
-binary = tk.Radiobutton(frame_binary, text='Activate Low-Binary Filter', variable = highLowOff, value='LOW', command= turn_binary)
-binary.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
-binary = tk.Radiobutton(frame_binary, text='Activate High-Binary Filter', variable = highLowOff, value='HIGH', command=turn_binary)
-binary.grid(row=1, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
-binary = tk.Radiobutton(frame_binary, text='Binary Filter is OFF', variable = highLowOff, value='OFF', command=turn_binary)
-binary.grid(row=2, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
-
-
 calibrate_button = tk.Button(frame_scalebar, text='Calibrate', relief='raised', borderwidth = 2, command=calibrateScaleBar)
 calibrate_button.config(height=1, width=9, font=('Helvetica', '8'))
-calibrate_button.grid(row = 3, column = 2, columnspan = 4, padx=1, pady =2, sticky ='e')
+calibrate_button.grid(row = 3, column = 2, columnspan = 4, padx=1, pady=2, sticky ='e')
  
-
 img_button = tk.Button(frame_upload, text='CLICK\nto upload an image', relief='raised', command=open_file)
 img_button.config(height=2, width=15, font=('Helvetica', '10'))
 img_button.pack(fill='both')
@@ -481,8 +514,8 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.0.0), 2020', font='consolas 10 bold')
-credit.grid(row=89, column=11, sticky='se')
+credit = tk.Label(root, text='R.Lu (v1.1.1), 2020', font='consolas 10 bold')
+credit.grid(row=69, column=10, columnspan = 2, sticky='se')
 
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):

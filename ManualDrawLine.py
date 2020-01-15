@@ -27,19 +27,22 @@ def draw_line(event, x, y, flags, param):
     elif event == cv2.EVENT_LBUTTONUP:
         x_up = x
         y_up = y
-
-        cropped_prev.append(cropped.copy())  
-        cv2.line(cropped, (x_up, y_up), (x_down,y_down), (0,255, 0), 2)
-        length_line = (x_up-x_down)
-        cropped_line.append(length_line)
-        prev_cropped = np.array(cropped_prev)
-        b = prev_cropped.shape[0]
+        try:
+            cropped_prev.append(cropped.copy())  
+            cv2.line(cropped, (x_up, y_down), (x_down,y_down), (0,255, 0), 2)
+            length_line = (x_up-x_down)
+            cropped_line.append(length_line)
+            prev_cropped = np.array(cropped_prev)
+            b = prev_cropped.shape[0]
+        except ValueError as e:
+            return
     
 
 # load the image, clone it, and setup the mouse callback function
-def load_img(up_img):
+def load_img(resized_cv2, c_corner):
     global cropped, factor, cropped_line
-    image = cv2.imread(up_img, cv2.IMREAD_COLOR)
+    image = resized_cv2
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     orig = image.copy()
 
     height, width, rgb_value = image.shape
@@ -47,8 +50,16 @@ def load_img(up_img):
     #image = cv2.resize(image, (700, int(height/(width/700))), interpolation = cv2.INTER_AREA)
 
     #height, width, rgb_value = image.shape
+    if c_corner == 'br':
+        cropped = image[int(height*0.7):height, int(width*0.5):width]
+    elif c_corner == 'bl':
+        cropped = image[int(height*0.7):height, 0:int(width*0.4)]
+    elif c_corner == 'tr': 
+        cropped = image[0:int(height*0.3), int(width*0.5):width]
+    elif c_corner == 'tl':
+        cropped = image[0:int(height*0.3), 0:int(width*0.4)]
 
-    cropped = image[int(height*0.7):height, int(width*0.5):width]
+
     factor = 2
     resize_width = (width - int(width*0.5))*factor
     resize_height = (height - int(height*0.7))*factor

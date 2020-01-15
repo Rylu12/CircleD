@@ -42,25 +42,13 @@ def draw_circle(event, x, y, flags, param):
         except MemoryError:
             cv2.destroyAllWindows()
 
-def load_img(up_img, pixel_dist):
+def load_img(resized_cv2, pixel_dist):
     global image, image_prev, prev_img, ratio
 # load the image, clone it, and setup the mouse callback function
-    image = cv2.imread(up_img, cv2.IMREAD_COLOR)
-
+    image = resized_cv2
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     ratio = pixel_dist
 
-    img_height, img_width, rgb_value = image.shape
-
-    max_wh = max(img_width, img_height)
-    if max_wh > 800:
-        factor = max_wh / 800
-    elif max_wh > 600 and max_wh < 800:
-        factor = max_wh
-    else:
-        factor = max_wh/800
-    
-
-    cv2.resizeWindow('Manual Draw Mode', int(img_width / factor), int(img_height / factor))
     cv2.imshow('Manual Draw Mode', image)
     cv2.setMouseCallback('Manual Draw Mode', draw_circle)
   
