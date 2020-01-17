@@ -20,6 +20,7 @@ max_range = 100
 intervals = 10
 rad_list =[]
 detected_circles = []
+dataForTable = {}
 
 def clear_plt():
     plt.clf()
@@ -30,11 +31,10 @@ def autoDetect(resized_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pix
     # Convert to grayscale.
     img = resized_img
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     # Blur using 3 * 3 kernel.
     gray_blurred = cv2.blur(gray, (3, 3))
-
 
 
     # Apply Hough transform on the blurred image.
@@ -42,18 +42,15 @@ def autoDetect(resized_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pix
                     cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = int(min_dist*pixel_distance), 
                     param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
 
-
-
 def autoDetectBin(resized_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
 
     img = resized_img
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     thres,binImg = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
     # Blur using 3 * 3 kernel.
     blurred = cv2.blur(binImg, (3, 3))
-
 
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(blurred, 
@@ -61,20 +58,23 @@ def autoDetectBin(resized_img, threshold,accum_ratio, min_dist, p1, p2, minDiam,
                     param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
 
 
-def processCircles(resized_img, filename, pixel_distance, manual_list):
-    global detected_circles, rad_list, img, result, bottom_10percentile, top_90percentile
+def processCircles(state, resized_img, filename, pixel_distance, manual_list):
+    global detected_circles, rad_list, img, result, bottom_10percentile, top_90percentile, new_name
     # Draw circles that are detected.
     
     img = resized_img
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     rad_list=[]
 
+    if state == False:
+        detected_circles = None
+
     result = '\n'
     try:
-        if (detected_circles is None) and (len(manual_list) == 1):
+        if (detected_circles is None) and (len(manual_list) == 0):
             return '\nNo circles found!\n'
 
-        elif len(manual_list) >1:
+        elif len(manual_list) > 0 and (detected_circles is None):
             manual_list.sort()
             bottom_10percentile = int(len(manual_list)*0.1)
             top_90percentile = int(len(manual_list)*0.9)
@@ -93,9 +93,9 @@ def processCircles(resized_img, filename, pixel_distance, manual_list):
                 cv2.circle(img, (a, b), r, (0, 255, 0), 2)
 
                 # Draw a small circle (of radius 1) to show the center.
-                cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
+                cv2.circle(img, (a, b), 1, (0, 0, 255), 2)
                 
-            
+
             new_name = filename[:-4] + '_detected' + filename[-4:]
             cv2.imwrite(new_name, img)
 
@@ -114,16 +114,21 @@ def processCircles(resized_img, filename, pixel_distance, manual_list):
         result +='\nAvg diam. = ' + "%.1f"%np.average(rad_list) + 'um' 
         result +='\nD10 = '+ str(rad_list[bottom_10percentile])+'um'+'\nD50 = ' + "%.1f"%np.median(rad_list) + "um" 
         result +='\nD90 = '+ str(rad_list[top_90percentile])+'um'
+
     except IndexError:
         pass
     return result
 
 def tableData():
-    global rad_list, row_list, dataForTable, col_list, bottom_10percentile, top_90percentile, detected_circles
-    dataForTable = {}
+    global rad_list, row_list, dataForTable, col_list, bottom_10percentile, top_90percentile, detected_circles, dataForTable
+
     col_list = []
     row_list = []
     Diam_um = 'Diameter (um)'
+    temp_2 = ' '
+    temp_3 = ' '
+    temp_4 = ' '
+    temp_5 = ' '
 
     if len(rad_list)>0:
         for items in range(len(rad_list)):
@@ -134,22 +139,42 @@ def tableData():
         
         dataForTable = dict(zip(row_list,col_list))
 
-        try:    
-            temp_one = dataForTable['rec1']['Diam_um']
-            temp_two = dataForTable['rec2']['Diam_um']
-            temp_three = dataForTable['rec3']['Diam_um']
-            temp_four = dataForTable['rec4']['Diam_um']
-            temp_five = dataForTable['rec5']['Diam_um']
+        try:
+            if len(dataForTable) < 2:
+                temp_1 = dataForTable['rec1']['Diam_um']
 
-            dataForTable.update({'rec1':{'Diam_um': str(temp_one) , 'Col2': '# of Circles', 'Col3': str(len(rad_list))},
-            'rec2':{'Diam_um': str(temp_two),'Col2': 'Avg Diam (um)', 'Col3': "%.1f"%np.average(rad_list)}, 
-            'rec3':{'Diam_um': str(temp_three) ,'Col2': 'D10 (um)', 'Col3': str(rad_list[bottom_10percentile])},
-            'rec4':{'Diam_um': str(temp_four),'Col2': 'D50 (um)', 'Col3': "%.1f"%np.median(rad_list)},
-            'rec5':{'Diam_um': str(temp_five) ,'Col2': 'D90 (um)', 'Col3': str(rad_list[top_90percentile])}
+            elif len(dataForTable) < 3:
+                temp_1 = dataForTable['rec1']['Diam_um']
+                temp_2 = dataForTable['rec2']['Diam_um']
+
+            elif len(dataForTable) < 4:
+                temp_1 = dataForTable['rec1']['Diam_um']
+                temp_2 = dataForTable['rec2']['Diam_um']
+                temp_3 = dataForTable['rec3']['Diam_um']
+
+            elif len(dataForTable) < 5:
+                temp_1 = dataForTable['rec1']['Diam_um']
+                temp_2 = dataForTable['rec2']['Diam_um']
+                temp_3 = dataForTable['rec3']['Diam_um']
+                temp_4 = dataForTable['rec4']['Diam_um']
+
+            elif len(dataForTable) >= 5:
+                temp_1 = dataForTable['rec1']['Diam_um']
+                temp_2 = dataForTable['rec2']['Diam_um']
+                temp_3 = dataForTable['rec3']['Diam_um']
+                temp_4 = dataForTable['rec4']['Diam_um']
+                temp_5 = dataForTable['rec5']['Diam_um']
+
+            dataForTable.update({'rec1':{'Diam_um': str(temp_1) , 'Col2': '# of Circles', 'Col3': str(len(rad_list))},
+            'rec2':{'Diam_um': str(temp_2),'Col2': 'Avg Diam (um)', 'Col3': "%.1f"%np.average(rad_list)}, 
+            'rec3':{'Diam_um': str(temp_3) ,'Col2': 'D10 (um)', 'Col3': str(rad_list[bottom_10percentile])},
+            'rec4':{'Diam_um': str(temp_4),'Col2': 'D50 (um)', 'Col3': "%.1f"%np.median(rad_list)},
+            'rec5':{'Diam_um': str(temp_5) ,'Col2': 'D90 (um)', 'Col3': str(rad_list[top_90percentile])}
             })
 
         except KeyError:
             pass
+
     return dataForTable
 
 

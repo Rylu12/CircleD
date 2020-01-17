@@ -14,11 +14,11 @@ import ManualDrawCircle as mdc
 root = tk.Tk()
 root.title("CirlceD - The Circle Detection Program")
 # oot.iconbitmap()
-root.geometry('1200x700')
+root.geometry('1210x700')
 # root.resizable(0, 0)
 # root.pack_propagate(0)
  
-global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, frame_histo_show, sw_img, cv2_img, filename
+global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, frame_histo_show, sw_img, filename
 global accum_ratio, min_dist, p1, p2, minDiam, maxDiam, binImg, table_Data, table
 
 reset = False
@@ -234,7 +234,7 @@ def open_file():
         
         max_wh = max(img_width, img_height)
 
-        resize_copy = max_wh/1000
+        resize_copy = max_wh/800
         resize_img = open_img.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
         resized_img_cv2 = np.asarray(resize_img)  
 
@@ -252,14 +252,14 @@ def open_file():
 
 def start_state():
     global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset, binState, pixel_dist
-    global new_img_histo, cv2_img, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
+    global new_img_histo, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
     global resized_img_cv2, max_wh, calibrated
 
  
     try:
         open_img_again = Image.open(filename).convert("RGB")
         max_wh = max(img_width, img_height)
-        resize_copy = max_wh/1000
+        resize_copy = max_wh/800
         resize_img = open_img_again.resize((int(img_width/resize_copy), int(img_height/resize_copy)))
         resized_img_cv2 = np.asarray(resize_img)  
 
@@ -287,19 +287,19 @@ def start_state():
                     if binState == 'NO':
                         adc.autoDetect(resized_img_cv2, int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
                             int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
+
                     elif binState == 'YES':
                         adc.autoDetectBin(resized_img_cv2, int(binary_thresholdBar.get()),int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
                             int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
 
-                    output = adc.processCircles(resized_img_cv2, filename, ratio, mdc.image_diam)
+                    output = adc.processCircles(True, resized_img_cv2, filename, ratio, mdc.image_diam)
                 
                     if adc.detected_circles is None:
-                        output_text.insert(tk.INSERT, '\nNo Circles Found!\n')  
+                        output_text.insert(tk.INSERT, '\nNo circles found!\n')  
                         return
                 else:
-      
                     manualDetect()
-                    if reset == True:
+                    if reset == True or len(mdc.image_diam) == 1:
                         reset = False
                         return
 
@@ -308,7 +308,7 @@ def start_state():
                     for items in range(len(mdc.image_diam)):
                         adc.rad_list.append(mdc.image_diam[items])
                     
-                    output = adc.processCircles(resized_img_cv2, filename, ratio, mdc.image_diam)
+                    output = adc.processCircles(False, resized_img_cv2, filename, ratio, mdc.image_diam)
                     
                 output_text.insert(tk.INSERT, str(output) + '\n\n')
 
@@ -349,57 +349,57 @@ def start_state():
 
                 if auto_manual == 'auto':
             
-                    cv2_img = adc.img
-                    cv2.namedWindow("Detected Circles", cv2.WINDOW_NORMAL)
-                    cv2.imshow("Detected Circles", cv2_img)
+                    cv2.imshow("Detected Circles", adc.img)
                     cv2.waitKey(1)
                     if cv2.getWindowProperty('Detected Circles',1) == -1 :
                         cv2.destroyAllWindows()
                 else: 
                     return
-            except NameError:
-                output_text.insert(tk.INSERT, '\nERROR...Type: NameError2!\n')
-                return
+            #except NameError:
+                #output_text.insert(tk.INSERT, '\nERROR...Type: NameError2!\n')
+               # return
             except AttributeError:
                 output_text.insert(tk.INSERT, '\nERROR...Type: AttributeError2!\n')
 
 
 def calibrateScaleBar():
     global filename, ratio, sb_location, resized_img_cv2, calibrated
-    calibrated = True
+    
     try:
         filename
     except NameError:
-        output_text.insert(tk.INSERT, '\nERROR...Type: NameError3!\n')
-        filename = None
+        output_text.insert(tk.INSERT, '\nERROR...Please upload an image first!\n')
+        return
 
-    if filename != None:
+    if filename:
 
-        if filename:
+        mdl.load_img(resized_img_cv2, sb_location)
 
-            mdl.load_img(resized_img_cv2, sb_location)
-
-            while True:
-                cv2.imshow("Cropped to measure scale-bar", mdl.cropped)
+        while True:
+            cv2.imshow("Cropped to measure scale-bar", mdl.cropped)
+            
+            key = cv2.waitKey(1) & 0xFF
                 
-                key = cv2.waitKey(1) & 0xFF
-                    
-                if key == ord("d"):
-                    mdl.b = mdl.b-1
-                    mdl.cropped = mdl.prev_cropped[mdl.b]
-                    mdl.cropped_prev.pop
-                    
-                if cv2.getWindowProperty('Cropped to measure scale-bar',1) == -1 :
-                    cv2.destroyAllWindows()
-                    break
+            if key == ord("d"):
+                mdl.b = mdl.b-1
+                mdl.cropped = mdl.prev_cropped[mdl.b]
+                mdl.cropped_prev.pop
+                
+            if cv2.getWindowProperty('Cropped to measure scale-bar',1) == -1 :
+                cv2.destroyAllWindows()
+                break
 
-            pixel_dist.configure(state='normal')
-            pixel_dist.delete(0, 'end')
-            input_scale = float(str(scalebar.get()))
-  
-            ratio = np.round(abs(mdl.drawLine()/input_scale),1)
-            pixel_dist.insert(0, str(ratio))
-            pixel_dist.configure(state='readonly')
+        pixel_dist.configure(state='normal')
+        pixel_dist.delete(0, 'end')
+        input_scale = float(str(scalebar.get()))
+
+        ratio = np.round(abs(mdl.drawLine()/input_scale),1)
+
+        pixel_dist.insert(0, str(ratio))
+        pixel_dist.configure(state='readonly')
+
+        if abs(mdl.drawLine()) > 1:
+            calibrated = True
 
 
 def manualDetect():
@@ -426,6 +426,10 @@ def manualDetect():
             while True:
                 cv2.imshow("Manual Draw Mode", mdc.image)
                 
+               # rec = 'rec' + str(len(mdc.image_diam))
+            
+               # realtime_data = ({rec:{'Diam_um': str(mdc.image_diam[len(mdc.image_diam)-1])}})
+
                 if mdc.diamCircles(True) != last_value:
 
                     last_value = mdc.diamCircles(True)
@@ -444,7 +448,8 @@ def manualDetect():
                         break
 
                 elif cv2.getWindowProperty('Manual Draw Mode',1) == -1 :
-                    break    
+                    break
+
         new_name = filename[:-4] + '_detected' + filename[-4:]
         cv2.imwrite(new_name,mdc.image)
         cv2.destroyAllWindows()
@@ -486,7 +491,7 @@ def turn_binary(state):
 
 
 
-binary_thresholdBar = tk.Scale(frame_binary, from_ = 1, to = 254, orient = 'horizontal', command = turn_binary)
+binary_thresholdBar = tk.Scale(frame_binary, from_ = 1, to = 254, orient = 'horizontal', length = 120,  command = turn_binary)
 binary_thresholdBar.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
 binary_thresholdBar.set(127)
 
@@ -515,7 +520,7 @@ start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
 credit = tk.Label(root, text='R.Lu (v1.1.1), 2020', font='consolas 10 bold')
-credit.grid(row=69, column=10, columnspan = 2, sticky='se')
+credit.grid(row=69, column=9, columnspan = 3, sticky = 'se')
 
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):
