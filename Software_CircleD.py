@@ -57,7 +57,7 @@ output_text = tkst.ScrolledText(frame_output, wrap=tk.WORD, width=27, height=25,
 output_text['font'] = ('consolas', '11')
 output_text.insert(tk.INSERT, str(output))
 output_text.pack(expand=True, anchor='n')
- 
+
 frame_rdbutton = tk.LabelFrame(root, width=70, padx=10, pady=5)
 frame_rdbutton.grid(row=15, column=0, rowspan=10, columnspan=5, padx=10, pady=5, sticky='w')
 frame_start = tk.LabelFrame(root, width=70, padx=10, pady=5)
@@ -72,7 +72,7 @@ frame_binary = tk.LabelFrame(root, text = "Binary Filter Mode")
 frame_binary.grid(row=57, column=8, rowspan = 13, columnspan=3, padx=10, pady=5, sticky = 'nw')
 
 frame_histo_show = tk.LabelFrame(root)
-frame_histo_show.grid(row=40, column = 0, rowspan = 32, columnspan = 4, padx=10, sticky = 'sw')
+frame_histo_show.grid(row=40, column = 0, rowspan = 32, columnspan = 4, padx=10, sticky = 'w')
 
 frame_table = tk.LabelFrame(root)
 frame_table.grid(row = 0, column = 10,  rowspan = 45, columnspan = 2, padx=10, pady=5, sticky = 'n')
@@ -253,9 +253,8 @@ def open_file():
 def start_state():
     global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset, binState, pixel_dist
     global new_img_histo, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
-    global resized_img_cv2, max_wh, calibrated
+    global resized_img_cv2, max_wh, calibrated, output_text
 
- 
     try:
         open_img_again = Image.open(filename).convert("RGB")
         max_wh = max(img_width, img_height)
@@ -283,7 +282,7 @@ def start_state():
 
             try:
                 if auto_manual == 'auto':
-
+        
                     if binState == 'NO':
                         adc.autoDetect(resized_img_cv2, int(param_dp.get()), int(param_minDist.get()), int(param_p1.get()), 
                             int(param_p2.get()), int(param_minDiam.get()), int(param_maxDiam.get()), ratio)
@@ -298,6 +297,7 @@ def start_state():
                         output_text.insert(tk.INSERT, '\n\nNo circles found!\n\n')  
                         return
                 else:
+
                     manualDetect()
                     if reset == True or len(mdc.image_diam) == 1:
                         reset = False
@@ -307,10 +307,16 @@ def start_state():
 
                     for items in range(len(mdc.image_diam)):
                         adc.rad_list.append(mdc.image_diam[items])
-                    
-                    output = adc.processCircles(False, resized_img_cv2, filename, ratio, mdc.image_diam)
+
+                    if "detected" in filename:
+                        total_list = adc.rad_list
+                        output = adc.processCircles(False, resized_img_cv2, filename, ratio, total_list)
+                    else:
+                        output = adc.processCircles(False, resized_img_cv2, filename, ratio, mdc.image_diam)
                     
                 output_text.insert(tk.INSERT, str(output) + '\n\n')
+                output_text.yview_moveto(1)
+                output_text.update()
 
                 try:
                     if int(maxRange.get()) < int(np.max(mdc.image_diam)):
@@ -360,6 +366,9 @@ def start_state():
                # return
             except AttributeError:
                 output_text.insert(tk.INSERT, '\nERROR...Type: AttributeError2!\n')
+    output_text.yview_moveto(1)
+    output_text.update()
+
 
 
 def calibrateScaleBar():
@@ -427,20 +436,23 @@ def manualDetect():
                 cv2.imshow("Manual Draw Mode", mdc.image)
 
                 if mdc.diamCircles(True) != last_value :
-                    currVal = mdc.image_diam[len(mdc.image_diam)-1]
-                    output_text.yview_moveto(1)
-                    output_text.insert(tk.INSERT, '\n'+str(currVal))
-                    output_text.update()
 
+                    if len(mdc.image_diam)>1:
 
-                    last_value = mdc.diamCircles(True)
+                        currVal = mdc.image_diam[len(mdc.image_diam)-1]
+     
+                        output_text.yview_moveto(1)
+                        output_text.insert(tk.INSERT, '\n'+str(currVal))
+                        output_text.update()
+
+                        last_value = mdc.diamCircles(True)
 
                 key = cv2.waitKey(1) & 0xFF
                     
                 if key == ord("d") or key == ord("D"):
                     try:
                         output_text.yview_moveto(1)
-                        output_text.delete(str(len(mdc.image_diam)+2)+'.0', 'end')
+                        output_text.delete('end -1 lines', 'end')
                         output_text.update()
                         last_value = mdc.diamCircles(False)
                         mdc.image = mdc.prev_img[mdc.b]
@@ -520,7 +532,7 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.2.0), 2020', font='consolas 10 bold')
+credit = tk.Label(root, text='R.Lu (v1.2.1), 2020', font='consolas 10 bold')
 credit.grid(row=69, column=9, columnspan = 3, sticky = 'se')
 
 def closing():

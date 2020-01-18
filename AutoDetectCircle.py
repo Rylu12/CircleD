@@ -37,10 +37,21 @@ def autoDetect(resized_img, accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pix
     gray_blurred = cv2.blur(gray, (3, 3))
 
 
+    minDist = int(min_dist*pixel_distance)
+    minRadius = int(minDiam*pixel_distance/2)
+    maxRadius = int(maxDiam*pixel_distance/2)
+
+    if minDist < 1:
+        minDist = 1
+    if minRadius <1:
+        minRadius =1
+    if minRadius <1:
+        minRadius =1
+
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(gray_blurred, 
-                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = int(min_dist*pixel_distance), 
-                    param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
+                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = minDist, 
+                    param1 = int(p1), param2 = int(p2), minRadius = minRadius, maxRadius = maxRadius)
 
 def autoDetectBin(resized_img, threshold,accum_ratio, min_dist, p1, p2, minDiam, maxDiam, pixel_distance):
     global result, img, table_data, rad_list, detected_circles
@@ -52,10 +63,21 @@ def autoDetectBin(resized_img, threshold,accum_ratio, min_dist, p1, p2, minDiam,
     # Blur using 3 * 3 kernel.
     blurred = cv2.blur(binImg, (3, 3))
 
+    minDist = int(min_dist*pixel_distance)
+    minRadius = int(minDiam*pixel_distance/2)
+    maxRadius = int(maxDiam*pixel_distance/2)
+
+    if minDist < 1:
+        minDist = 1
+    if minRadius <1:
+        minRadius =1
+    if minRadius <1:
+        minRadius =1
+
     # Apply Hough transform on the blurred image.
     detected_circles = cv2.HoughCircles(blurred, 
-                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = int(min_dist*pixel_distance), 
-                    param1 = int(p1), param2 = int(p2), minRadius = int(minDiam*pixel_distance/2), maxRadius = int(maxDiam*pixel_distance/2))
+                    cv2.HOUGH_GRADIENT, dp = int(accum_ratio), minDist = minDist, 
+                    param1 = int(p1), param2 = int(p2), minRadius = minRadius, maxRadius = maxRadius)
 
 
 def processCircles(state, resized_img, filename, pixel_distance, manual_list):
