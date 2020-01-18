@@ -69,7 +69,7 @@ def processCircles(state, resized_img, filename, pixel_distance, manual_list):
     if state == False:
         detected_circles = None
 
-    result = '\n'
+    result = '\n\n'
     try:
         if (detected_circles is None) and (len(manual_list) == 0):
             return '\nNo circles found!\n'

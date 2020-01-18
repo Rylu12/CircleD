@@ -264,13 +264,13 @@ def start_state():
         resized_img_cv2 = np.asarray(resize_img)  
 
     except (NameError, AttributeError) as e:
-        output_text.insert(tk.INSERT, '\nERROR...Please upload an image before running!\n')
+        output_text.insert(tk.INSERT, '\n\nERROR...Please upload an image before running!\n\n')
 
         filename = None
 
     if filename != None:
         if calibrated != True:
-            output_text.insert(tk.INSERT, '\nERROR...Please calibrate image before running!\n')
+            output_text.insert(tk.INSERT, '\n\nERROR...Please calibrate image before running!\n\n')
             return
         if filename:
             pixel_dist.configure(state='normal')
@@ -295,7 +295,7 @@ def start_state():
                     output = adc.processCircles(True, resized_img_cv2, filename, ratio, mdc.image_diam)
                 
                     if adc.detected_circles is None:
-                        output_text.insert(tk.INSERT, '\nNo circles found!\n')  
+                        output_text.insert(tk.INSERT, '\n\nNo circles found!\n\n')  
                         return
                 else:
                     manualDetect()
@@ -368,7 +368,7 @@ def calibrateScaleBar():
     try:
         filename
     except NameError:
-        output_text.insert(tk.INSERT, '\nERROR...Please upload an image first!\n')
+        output_text.insert(tk.INSERT, '\n\nERROR...Please upload an image first!\n\n')
         return
 
     if filename:
@@ -425,12 +425,13 @@ def manualDetect():
 
             while True:
                 cv2.imshow("Manual Draw Mode", mdc.image)
-                
-               # rec = 'rec' + str(len(mdc.image_diam))
-            
-               # realtime_data = ({rec:{'Diam_um': str(mdc.image_diam[len(mdc.image_diam)-1])}})
 
-                if mdc.diamCircles(True) != last_value:
+                if mdc.diamCircles(True) != last_value :
+                    currVal = mdc.image_diam[len(mdc.image_diam)-1]
+                    output_text.yview_moveto(1)
+                    output_text.insert(tk.INSERT, '\n'+str(currVal))
+                    output_text.update()
+
 
                     last_value = mdc.diamCircles(True)
 
@@ -438,8 +439,10 @@ def manualDetect():
                     
                 if key == ord("d") or key == ord("D"):
                     try:
-
-                        mdc.diamCircles(False)
+                        output_text.yview_moveto(1)
+                        output_text.delete(str(len(mdc.image_diam)+2)+'.0', 'end')
+                        output_text.update()
+                        last_value = mdc.diamCircles(False)
                         mdc.image = mdc.prev_img[mdc.b]
 
                     except IndexError:
@@ -489,8 +492,6 @@ def turn_binary(state):
             return 'NO'
 
 
-
-
 binary_thresholdBar = tk.Scale(frame_binary, from_ = 1, to = 254, orient = 'horizontal', length = 120,  command = turn_binary)
 binary_thresholdBar.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
 binary_thresholdBar.set(127)
@@ -519,7 +520,7 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.1.1), 2020', font='consolas 10 bold')
+credit = tk.Label(root, text='R.Lu (v1.2.0), 2020', font='consolas 10 bold')
 credit.grid(row=69, column=9, columnspan = 3, sticky = 'se')
 
 def closing():

@@ -59,6 +59,7 @@ def diamCircles(state):
         image_diam.pop()
         image_prev.pop()
         b = b-1
+        return image_diam[b]
     elif b == (len(image_diam)-1):
         return image_diam[b]
 
