@@ -192,14 +192,11 @@ def sbLocation_clicked(value):
     elif value == 'br':
         sb_location = value
 
-
-
  
 black_img = Image.open('black300.png')
 temp_img = ImageTk.PhotoImage(black_img)
 placeholder_img = tk.Label(frame_preview, image=temp_img).pack()
  
-
 
 table = tkt.TableCanvas(frame_table, data = table_Data,
             cellwidth=30, cellbackgr='white',
@@ -247,7 +244,6 @@ def open_file():
         window_img = ImageTk.PhotoImage(open_img)
         show_img = tk.Label(frame_preview, bg ="black", image=window_img).place(x=0, y=adj_height)
         binary_state.config(state = 'normal')
-
 
 
 def start_state():
@@ -309,8 +305,12 @@ def start_state():
                         adc.rad_list.append(mdc.image_diam[items])
 
                     if "detected" in filename:
-                        total_list = adc.rad_list
-                        output = adc.processCircles(False, resized_img_cv2, filename, ratio, total_list)
+                        response = tk.messagebox.askyesno(title = 'Combine Manual Detection Data' , message = 'Do you wish to append the previous diameter values?')
+                        if response == 1:
+                            total_list = adc.rad_list
+                            output = adc.processCircles(False, resized_img_cv2, filename, ratio, total_list)
+                        else:
+                            output = adc.processCircles(False, resized_img_cv2, filename, ratio, mdc.image_diam)
                     else:
                         output = adc.processCircles(False, resized_img_cv2, filename, ratio, mdc.image_diam)
                     
@@ -532,7 +532,7 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.2.1), 2020', font='consolas 10 bold')
+credit = tk.Label(root, text='R.Lu (v1.2.2), 2020', font='consolas 10 bold')
 credit.grid(row=69, column=9, columnspan = 3, sticky = 'se')
 
 def closing():
