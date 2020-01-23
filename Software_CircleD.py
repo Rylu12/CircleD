@@ -335,10 +335,10 @@ def start_state():
                 try:
                     maxRange.delete(0, 'end')
                     maxRange.insert(0, str(adc.max_range))
-                    if int(maxRange.get()) < int(np.max(mdc.image_diam)):
-                        num = int(np.max(mdc.image_diam)%int(interval_bins.get()))
+                    if int(maxRange.get()) < int(np.max(adc.rad_list)):
+                        num = int(np.max(adc.rad_list)%int(interval_bins.get()))
                         addtoMaxRange = int(interval_bins.get()) - num
-                        new_maxRange = int(np.max(mdc.image_diam)) + addtoMaxRange
+                        new_maxRange = int(np.max(adc.rad_list)) + addtoMaxRange
                     else:
                         new_maxRange = int(maxRange.get())
                 except ValueError1:
@@ -551,8 +551,8 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.3.1), 2020', font='consolas 8 bold')
-credit.grid(row=69, column=11, sticky = 'ne')
+credit = tk.Label(root, text='R.Lu (v1.3.2), 2020', font='consolas 8 bold')
+credit.grid(row=69, column=11, padx = 5,sticky = 'ne')
 
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):
