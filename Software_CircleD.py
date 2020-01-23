@@ -209,12 +209,12 @@ table.show()
 yesNoState = tk.StringVar()
 yesNoState.set('NO')
 binState = 'NO'
+filename_copy = ''
 
 def open_file():
     global open_img, window_img, placeholder_img, show_img, img_width, img_height, filename
-    global max_wh, adj_height, binary_state, resized_img_cv2, resize_img, calibrated
+    global max_wh, adj_height, binary_state, resized_img_cv2, resize_img, calibrated, filename_copy
 
-    calibrated = False
     black_img = Image.open('black250.png')
     temp_img = ImageTk.PhotoImage(black_img)
     placeholder_img = tk.Label(frame_preview, image=temp_img, bg ='black').place(x=0, y=0)
@@ -222,6 +222,12 @@ def open_file():
     filename = filedialog.askopenfilename(initialdir='C:\\', title="Select a file",
                                           filetypes=(
                                           ("jpg Files", "*jpg"), ("png Files", "*png"), ("tif Files", "*tif")))
+
+    if (filename != (filename_copy[:-4] + '_detected' + filename_copy[-4:])):
+        calibrated = False
+    else:
+        calibrated = True
+
     resize = False
     if filename:
         try:  
@@ -251,7 +257,7 @@ def open_file():
 def start_state():
     global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset, binState, pixel_dist
     global new_img_histo, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
-    global resized_img_cv2, max_wh, calibrated, output_text
+    global resized_img_cv2, max_wh, calibrated, output_text, filename_copy
 
     try:
         open_img_again = Image.open(filename).convert("RGB")
@@ -266,6 +272,9 @@ def start_state():
         filename = None
 
     if filename != None:
+
+        filename_copy = filename
+
         if calibrated != True:
             output_text.insert(tk.INSERT, '\n\nERROR...Please calibrate image before running!\n\n')
             return
@@ -336,8 +345,6 @@ def start_state():
                     output_text.insert(tk.INSERT, '\nERROR...Type: ValueError1!\n')
                     return
 
-                print(new_maxRange)
-                print('Above is new maxRange')
 
                 maxRange.delete(0, 'end')
                 maxRange.insert(0, str(new_maxRange))
@@ -544,7 +551,7 @@ start_button = tk.Button(frame_start, text='START\nAuto/Manual Mode', relief='ra
 start_button.config(height=2, width=15, font=('Helvetica', '10'))
 start_button.pack(fill='both')
  
-credit = tk.Label(root, text='R.Lu (v1.2.3), 2020', font='consolas 10 bold')
+credit = tk.Label(root, text='R.Lu (v1.3.1), 2020', font='consolas 8 bold')
 credit.grid(row=69, column=11, sticky = 'ne')
 
 def closing():
