@@ -13,7 +13,7 @@ All the features of the software are demo'ed below:
 
 ![Upload and select images](Features_MP4_GIF/Upload_select_img.gif)
 
-#Binary filter mode
+# Binary filter mode
 
 ![Binary filter mode](Features_MP4_GIF/Binary_filter_mode.gif)
 
