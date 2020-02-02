@@ -2,6 +2,10 @@
 
 Please read the How-To-Use-Guide PDF file to get started.
 
+![Main image of software](CircleD_v1.3.2.PNG)
+
+........................
+
 All the features of the software are demo'ed below:
 
 Upload and select images
