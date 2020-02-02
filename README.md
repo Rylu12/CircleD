@@ -4,7 +4,7 @@
 
 ![Binary filter mode](Features_MP4_GIF/Binary_filter_mode.gif)
 
-![Calibrating scale bar](Features_MP4_GIF/Calibrate_Scale_bar.gif)
+![Calibrating scale bar](Features_MP4_GIF/Calibrate_Scale_Bar.gif)
 
 ![Auto-Detection mode](Features_MP4_GIF/AutoDetect_mode.gif)
 
