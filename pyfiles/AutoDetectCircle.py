@@ -5,7 +5,6 @@ import pandas as pd
 import openpyxl
 
 #Get pixel/distance (using ImageJ software) to output actual diameters of circles
-global result, table_data, resized_img, pixel_distance, detected_circles
 
 dp = 1
 accum_ratio = 1

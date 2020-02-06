@@ -13,14 +13,11 @@ import ManualDrawCircle as mdc
  
 root = tk.Tk()
 root.title("CirlceD - The Circle Detection Program")
-# oot.iconbitmap()
+#root.iconbitmap()
 root.geometry('1055x625')
 root.tk.call('tk', 'scaling', 1.2)
-# root.resizable(0, 0)
-# root.pack_propagate(0)
+
  
-global temp_img, auto_manual, start_circle, img_conver, output, new_img_histo, frame_histo_show, sw_img, filename
-global accum_ratio, min_dist, p1, p2, minDiam, maxDiam, binImg, table_Data, table
 
 reset = False
 calibrated = False
@@ -449,12 +446,13 @@ def manualDetect():
                 reset = True
                 return
 
-            last_value = 0
+            last_value = 1
+            mdc.initialize()
 
             while True:
                 cv2.imshow("Manual Draw Mode", mdc.image)
 
-                if mdc.diamCircles(True) != last_value :
+                if len(mdc.diamCircles(True)) != last_value :
 
                     if len(mdc.image_diam)>1:
 
@@ -464,7 +462,7 @@ def manualDetect():
                         output_text.insert(tk.INSERT, '\n'+str(currVal))
                         output_text.update()
 
-                        last_value = mdc.diamCircles(True)
+                        last_value = len(mdc.diamCircles(True))
 
                 key = cv2.waitKey(1) & 0xFF
                     
@@ -473,7 +471,7 @@ def manualDetect():
                         output_text.yview_moveto(1)
                         output_text.delete('end -1 lines', 'end')
                         output_text.update()
-                        last_value = mdc.diamCircles(False)
+                        last_value = len(mdc.diamCircles(False))
                         mdc.image = mdc.prev_img[mdc.b]
 
                     except IndexError:

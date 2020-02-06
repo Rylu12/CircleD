@@ -4,11 +4,13 @@ import math
 import numpy as np
 
 # now let's initialize the list of reference point
-m_x = -1
-m_y = -1
-b = 0
-image_prev = []
-image_diam = [0]
+def initialize():
+    global m_x, m_y, b, image_prev, image_diam
+    m_x = -1
+    m_y = -1
+    b = 0
+    image_prev = []
+    image_diam = [0]
 
 def draw_circle(event, x, y, flags, param):
     # grab references to the global variables
@@ -59,8 +61,8 @@ def diamCircles(state):
         image_diam.pop()
         image_prev.pop()
         b = b-1
-        return image_diam[b]
+        return image_diam
     elif b == (len(image_diam)-1):
-        return image_diam[b]
+        return image_diam
 
 
