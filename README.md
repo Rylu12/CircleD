@@ -1,6 +1,12 @@
 # CircleD Software
 (A Windows executable version of the software for those who do not know how to read/write Python code is available at my Dropbox link below. All you have to do is double click on the Main_v1.3.2.exe file and the software will run. No installation required!)
 ***************
+https://www.dropbox.com/s/xideisfp466wpck/Software_CircleD_v1.3.2.zip?dl=0
+
+(~87mb file)
+The software may take up to 30 seconds to run after double-clicking on the Main_v1.3.2.exe file.
+
+***************
 Please read the How-To-Use-Guide PDF file to get started.
 
 ![Main image of software](CircleD_v1.3.2.PNG)
