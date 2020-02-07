@@ -3,7 +3,7 @@
 ***************
 https://www.dropbox.com/s/xideisfp466wpck/Software_CircleD_v1.3.2.zip?dl=0
 
-(~87mb file)
+(~85mb file)
 The software may take up to 30 seconds to run after double-clicking on the Main_v1.3.2.exe file.
 
 ***************
