@@ -1,6 +1,5 @@
 # CircleD Software
-(A Windows executable version of the software for those who do not know how to read/write code is available at my Dropbox link below)
-(All you have to do is double click on the Main_v1.3.2.exe file and the software will run. No installation required.)
+(A Windows executable version of the software for those who do not know how to read/write Python code is available at my Dropbox link below. All you have to do is double click on the Main_v1.3.2.exe file and the software will run. No installation required!)
 ***************
 Please read the How-To-Use-Guide PDF file to get started.
 
