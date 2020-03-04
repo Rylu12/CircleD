@@ -1,0 +1,3 @@
+The pyfiles folder contains the raw python code used in the software.
+
+"Software_CircleD.py" is the main driver of the software and where the GUI is maintained.
