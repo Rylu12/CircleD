@@ -10,29 +10,34 @@ import numpy as np
 import ManualDrawLine as mdl
 import ManualDrawCircle as mdc
 
- 
+#Initialize GUI with root and set window dimensions
 root = tk.Tk()
 root.title("CirlceD - The Circle Detection Program")
-#root.iconbitmap()
 root.geometry('1055x625')
 root.tk.call('tk', 'scaling', 1.2)
 
  
-
+#Initialize parameters
 reset = False
 calibrated = False
 
+#Initialize tkintertable dictionary set up
 table_Data = {'rec1': {'Col1': 'Diam.', 'Col2': 'values', 'Col3': 'will'}, 'rec2':{'Col1': 'go', 'Col2': 'here', 'Col3': ' '}, 
                 'rec3': {'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 'rec4':{'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 
                 'rec5':{'Col1': ' ', 'Col2': ' ', 'Col3': ' '}, 'rec6': {'Col1': ' ', 'Col2': ' ', 'Col3': ' '}}
 
+#Initialize output display
 output = 'Output results will display below...\n----------------------\n'
 start_state = False
- 
+
+
+#Initialize window logo and logo frame
 logo_img = ImageTk.PhotoImage(Image.open('circleD_V.png'))
 logo_show = tk.Label(root, image=logo_img)
 logo_show.grid(row =0, column = 0, rowspan = 15)
- 
+
+
+#Initialize intro text frame
 frame_intro = tk.LabelFrame(root, width=80)
 frame_intro.grid(row=0, column=1, rowspan=15, columnspan=5, pady=10, sticky = 'w')
  
@@ -47,7 +52,9 @@ intro_text.insert(tk.INSERT,
                   "\n\nReadings:\nhttps://en.wikipedia.org/wiki/Circle_Hough_Transform\n\nDescription of Hough Circle parameters:\nhttps://docs.opencv.org/3.4/d3/de5/tutorial_js_houghcircles.html")
  
 intro_text.pack(expand=True, fill='both')
- 
+
+
+#Initialize all other frames in GUI
 frame_output = tk.LabelFrame(root, bg='BLACK')
 frame_output.grid(row=0, column=8, rowspan=55, columnspan=2, padx=10, pady=10, sticky='n')
  
@@ -164,7 +171,7 @@ label_pixel_dist.grid(row=3, column=0, padx=1, pady=1, sticky = 'w')
 frame_sbLocation = tk.LabelFrame(root, text ='Scale-Bar Location?', padx = 5, pady = 5)
 frame_sbLocation.grid(row = 44, column = 11, rowspan = 13, padx = 5, pady=7, sticky = 'nw')
 
-
+#Initialize radiobutton functions for scale calibration
 sb_text = tk.StringVar()
 sb_location = 'br'
 sb_text.set('br')
@@ -177,8 +184,8 @@ tk.Radiobutton(frame_sbLocation, text="Bottom-Left",
                variable=sb_text, value='bl', command=lambda: sbLocation_clicked('bl')).grid(row = 1, column = 0, sticky = 'w')
 tk.Radiobutton(frame_sbLocation, text="Bottom-Right",
                variable=sb_text, value='br', command=lambda: sbLocation_clicked('br')).grid(row = 1, column = 1, sticky = 'w')
- 
- 
+
+
 def sbLocation_clicked(value):
     global sb_location
     if value == 'tl':
@@ -190,7 +197,7 @@ def sbLocation_clicked(value):
     elif value == 'br':
         sb_location = value
 
- 
+#Initialize image display as default black image
 black_img = Image.open('black250.png')
 black_img = black_img.resize((250,250))
 temp_img = ImageTk.PhotoImage(black_img)
@@ -208,7 +215,12 @@ yesNoState.set('NO')
 binState = 'NO'
 filename_copy = ''
 
+
 def open_file():
+    """
+    Function to upload and open image files
+    """
+
     global open_img, window_img, placeholder_img, show_img, img_width, img_height, filename
     global max_wh, adj_height, binary_state, resized_img_cv2, resize_img, calibrated, filename_copy
 
@@ -252,6 +264,10 @@ def open_file():
 
 
 def start_state():
+    """
+    Function to start auto detection or manual detection mode after uploading file
+    """
+
     global filename, temp_img, detected_img, output, smaller_histo_img, ratio, reset, binState, pixel_dist
     global new_img_histo, img_width, img_height, bin_img, table_Data, table, binary_thresholdBar
     global resized_img_cv2, max_wh, calibrated, output_text, filename_copy
@@ -363,7 +379,7 @@ def start_state():
                         cellwidth=30, cellbackgr='white',
                         thefont=('Arial',10), width = 182, height = 384,
                         rowselectedcolor='#f8eba2')
-
+                #If fresh install tkintertable, go to Tables.py and use only celltxt=str(celltxt), remove if statement
                 table.show()
 
                 mdc.image_diam = [0]
@@ -388,6 +404,10 @@ def start_state():
 
 
 def calibrateScaleBar():
+
+    """
+    Function to calibrate the scale bar in images
+    """
     global filename, ratio, sb_location, resized_img_cv2, calibrated
     
     try:
@@ -428,6 +448,11 @@ def calibrateScaleBar():
 
 
 def manualDetect():
+
+    """
+    Function for manual detection mode
+    """
+
     global filename, ratio, reset, resized_img_cv2
     
     try:
@@ -488,6 +513,11 @@ def manualDetect():
            
 
 def rd_button_clicked(value):
+
+    """
+    Function to activate auto/manual detection mode
+    """
+
     global auto_manual
     if value == 'auto':
         auto_manual = value
@@ -495,6 +525,11 @@ def rd_button_clicked(value):
         auto_manual = value         
 
 def turn_binary(state):
+
+    """
+    Function to convert image to binary image (black and white only)
+    """
+
     global open_img, window_img, adj_height, binImg, binary_state, binState
     try:
         open_img
@@ -521,6 +556,7 @@ def turn_binary(state):
             return 'NO'
 
 
+#Binary image threshold bar on GUI
 binary_thresholdBar = tk.Scale(frame_binary, from_ = 1, to = 254, orient = 'horizontal', length = 120,  command = turn_binary)
 binary_thresholdBar.grid(row=0, column=4, columnspan = 3, padx=1, pady=1, sticky = 'w')
 binary_thresholdBar.set(127)
@@ -531,7 +567,8 @@ binary_state.grid(row=1, column=4, columnspan = 3, padx=1, pady=1)
 detect_method = tk.StringVar()
 auto_manual = 'auto'
 detect_method.set('auto detect')
- 
+
+#Auto/Manual detect GUI button
 tk.Radiobutton(frame_rdbutton, text="MANUAL DETECT - Manually draw circles to get diameter values",
                variable=detect_method, value='manual detect', command=lambda: rd_button_clicked('manual')).pack(anchor='w')
 tk.Radiobutton(frame_rdbutton, text="AUTO DETECT - Uses 'Circle Hough Transform' to detect circles",
@@ -552,6 +589,8 @@ start_button.pack(fill='both')
 credit = tk.Label(root, text='R.Lu (v1.3.2), 2020', font='consolas 8 bold')
 credit.grid(row=69, column=11, padx = 5,sticky = 'ne')
 
+
+#Pop up window when GUI X-button is pressed
 def closing():
     if tk.messagebox.askokcancel("Exit Program", "Do you wish to quit the program?"):
         cv2.destroyAllWindows()
@@ -559,4 +598,5 @@ def closing():
 
 root.protocol("WM_DELETE_WINDOW", closing)
 root.mainloop()
+
 
